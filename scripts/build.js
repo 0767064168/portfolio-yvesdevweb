@@ -7,8 +7,8 @@ import { getPublicData } from '../server/src/db.js';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const root = resolve(__dirname, '..');
 const assetsDir = resolve(root, 'assets');
+const clientPublicAssetsDir = resolve(root, 'client', 'public', 'assets');
 const clientDistDir = resolve(root, 'client', 'dist');
-const clientDistAssetsDir = resolve(clientDistDir, 'assets');
 const rootDistDir = resolve(root, 'dist');
 const defaultDataFile = resolve(root, 'client', 'src', 'defaultData.json');
 
@@ -21,26 +21,26 @@ try {
   console.warn('⚠️ Impossible de pré-remplir defaultData.json:', e.message);
 }
 
-console.log('📦 [2/4] Construction du client Vite...');
+console.log('📂 [2/4] Synchronisation des assets dans client/public...');
+if (existsSync(assetsDir)) {
+  if (!existsSync(clientPublicAssetsDir)) {
+    mkdirSync(clientPublicAssetsDir, { recursive: true });
+  }
+  cpSync(assetsDir, clientPublicAssetsDir, { recursive: true });
+  console.log('✅ client/public/assets synchronisé');
+}
+
+console.log('📦 [3/4] Construction Vite (vers dist racine)...');
 execSync('npm run build --workspace client', { stdio: 'inherit', cwd: root });
 
-console.log('📂 [3/4] Copie des assets statiques dans client/dist/assets...');
-if (existsSync(assetsDir)) {
-  if (!existsSync(clientDistAssetsDir)) {
-    mkdirSync(clientDistAssetsDir, { recursive: true });
+console.log('🚀 [4/4] Synchronisation dist vers client/dist pour compatibilité serveur Express...');
+if (existsSync(rootDistDir)) {
+  if (existsSync(clientDistDir)) {
+    rmSync(clientDistDir, { recursive: true, force: true });
   }
-  cpSync(assetsDir, clientDistAssetsDir, { recursive: true });
-  console.log('✅ Assets statiques copiés dans client/dist/assets');
+  mkdirSync(clientDistDir, { recursive: true });
+  cpSync(rootDistDir, clientDistDir, { recursive: true });
+  console.log('✅ client/dist synchronisé avec succès !');
 }
 
-console.log('🚀 [4/4] Synchronisation vers le dossier racine dist (attendu par Vercel)...');
-if (existsSync(clientDistDir)) {
-  if (existsSync(rootDistDir)) {
-    rmSync(rootDistDir, { recursive: true, force: true });
-  }
-  mkdirSync(rootDistDir, { recursive: true });
-  cpSync(clientDistDir, rootDistDir, { recursive: true });
-  console.log('✅ Dossier racine dist prêt avec index.html et tous les assets !');
-}
-
-console.log('🎉 Build terminé avec succès prêt pour le déploiement.');
+console.log('🎉 Build complet terminé prêt pour le déploiement.');
