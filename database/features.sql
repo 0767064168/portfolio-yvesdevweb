@@ -1,17 +1,23 @@
-USE portfolio_yves_yao;
+-- =============================================================
+-- features.sql — Tables complémentaires (PostgreSQL / Supabase)
+-- =============================================================
+-- Note : PostgreSQL n'utilise pas USE. Exécutez ce fichier
+-- directement dans votre base Supabase (SQL Editor).
+-- =============================================================
 
+-- ── Project images ──────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS project_images (
-  id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-  project_id INT UNSIGNED NOT NULL,
+  id SERIAL PRIMARY KEY,
+  project_id INTEGER NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
   image_path VARCHAR(255) NOT NULL,
   caption VARCHAR(180) DEFAULT '',
-  sort_order INT DEFAULT 0,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  CONSTRAINT fk_project_images_project FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE
-) ENGINE=InnoDB;
+  sort_order INTEGER DEFAULT 0,
+  created_at TIMESTAMPTZ DEFAULT now()
+);
 
+-- ── Testimonials ────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS testimonials (
-  id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  id SERIAL PRIMARY KEY,
   client_name VARCHAR(120) NOT NULL,
   client_name_en VARCHAR(120) DEFAULT '',
   company VARCHAR(160) DEFAULT '',
@@ -20,24 +26,26 @@ CREATE TABLE IF NOT EXISTS testimonials (
   quote_en TEXT,
   role VARCHAR(120) DEFAULT '',
   role_en VARCHAR(120) DEFAULT '',
-  active TINYINT(1) DEFAULT 1,
-  sort_order INT DEFAULT 0,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-) ENGINE=InnoDB;
+  active BOOLEAN DEFAULT true,
+  sort_order INTEGER DEFAULT 0,
+  created_at TIMESTAMPTZ DEFAULT now()
+);
 
-INSERT IGNORE INTO testimonials (id, client_name, company, quote, role, sort_order) VALUES
+INSERT INTO testimonials (id, client_name, company, quote, role, sort_order) VALUES
 (1, 'Client projet RH', 'Projet PointageRH', 'Une solution claire, rapide et adaptée à nos besoins quotidiens.', 'Responsable projet', 1),
-(2, 'Partenaire métier', 'Projet expéditions', 'Une compréhension rapide du besoin et un outil vraiment opérationnel.', 'Direction des opérations', 2);
+(2, 'Partenaire métier', 'Projet expéditions', 'Une compréhension rapide du besoin et un outil vraiment opérationnel.', 'Direction des opérations', 2)
+ON CONFLICT (id) DO NOTHING;
 
+-- ── Translations ────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS translations (
-  id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  id SERIAL PRIMARY KEY,
   translation_key VARCHAR(120) NOT NULL,
   locale CHAR(2) NOT NULL,
   translation_value TEXT NOT NULL,
-  UNIQUE KEY uq_translation_locale (translation_key, locale)
-) ENGINE=InnoDB;
+  UNIQUE (translation_key, locale)
+);
 
-INSERT IGNORE INTO translations (translation_key, locale, translation_value) VALUES
+INSERT INTO translations (translation_key, locale, translation_value) VALUES
 ('nav.about', 'fr', 'À propos'), ('nav.about', 'en', 'About'),
 ('nav.skills', 'fr', 'Compétences'), ('nav.skills', 'en', 'Skills'),
 ('nav.projects', 'fr', 'Projets'), ('nav.projects', 'en', 'Projects'),
@@ -46,7 +54,7 @@ INSERT IGNORE INTO translations (translation_key, locale, translation_value) VAL
 ('skip.link', 'fr', 'Aller au contenu'), ('skip.link', 'en', 'Skip to content'),
 ('hero.available', 'fr', 'Disponible pour de nouveaux projets'), ('hero.available', 'en', 'Available for new projects'),
 ('cta.view_projects', 'fr', 'Voir mes projets'), ('cta.view_projects', 'en', 'View my projects'),
-('cta.talk_project', 'fr', 'Parlons de votre projet'), ('cta.talk_project', 'en', "Let's talk about your project"),
+('cta.talk_project', 'fr', 'Parlons de votre projet'), ('cta.talk_project', 'en', 'Let''s talk about your project'),
 ('kicker.about', 'fr', 'À PROPOS'), ('kicker.about', 'en', 'ABOUT'),
 ('kicker.skills', 'fr', 'STACK'), ('kicker.skills', 'en', 'STACK'),
 ('kicker.projects', 'fr', 'PROJETS'), ('kicker.projects', 'en', 'PROJECTS'),
@@ -55,7 +63,7 @@ INSERT IGNORE INTO translations (translation_key, locale, translation_value) VAL
 ('kicker.reviews', 'fr', 'RETOURS'), ('kicker.reviews', 'en', 'REVIEWS'),
 ('about.heading_prefix', 'fr', 'La technologie avec une vraie'), ('about.heading_prefix', 'en', 'Technology with a real'),
 ('about.heading_suffix', 'fr', 'vision produit.'), ('about.heading_suffix', 'en', 'product vision.'),
-('about.text', 'fr', 'Mon approche combine développement, design d’interface et compréhension des besoins métier pour construire des outils concrets et durables.'), ('about.text', 'en', 'My approach combines development, interface design and business understanding to build concrete, lasting tools.'),
+('about.text', 'fr', 'Mon approche combine développement, design d''interface et compréhension des besoins métier pour construire des outils concrets et durables.'), ('about.text', 'en', 'My approach combines development, interface design and business understanding to build concrete, lasting tools.'),
 ('skills.heading_prefix', 'fr', 'Mes outils pour'), ('skills.heading_prefix', 'en', 'My tools to'),
 ('skills.heading_suffix', 'fr', 'construire.'), ('skills.heading_suffix', 'en', 'build.'),
 ('skills.expertise', 'fr', 'Expertise'), ('skills.expertise', 'en', 'Expertise'),
@@ -64,7 +72,7 @@ INSERT IGNORE INTO translations (translation_key, locale, translation_value) VAL
 ('services.heading_prefix', 'fr', 'Ce que je peux'), ('services.heading_prefix', 'en', 'What I can'),
 ('services.heading_suffix', 'fr', 'construire.'), ('services.heading_suffix', 'en', 'build.'),
 ('contact.heading_prefix', 'fr', 'Un projet en tête ?'), ('contact.heading_prefix', 'en', 'Have a project in mind?'),
-('contact.heading_suffix', 'fr', 'Construisons-le.'), ('contact.heading_suffix', 'en', "Let's build it."),
+('contact.heading_suffix', 'fr', 'Construisons-le.'), ('contact.heading_suffix', 'en', 'Let''s build it.'),
 ('contact.description', 'fr', 'Décris ton besoin et prépare les grandes lignes de ton prochain produit digital.'), ('contact.description', 'en', 'Describe your need and outline the key points of your next digital product.'),
 ('contact.success', 'fr', 'Merci, votre message a bien été envoyé.'), ('contact.success', 'en', 'Thank you, your message has been sent.'),
 ('form.name', 'fr', 'Nom'), ('form.name', 'en', 'Name'),
@@ -77,11 +85,13 @@ INSERT IGNORE INTO translations (translation_key, locale, translation_value) VAL
 ('reviews.title_prefix', 'fr', 'Des collaborations qui font'), ('reviews.title_prefix', 'en', 'Collaborations that make'),
 ('reviews.title_suffix', 'fr', 'la différence.'), ('reviews.title_suffix', 'en', 'a difference.'),
 ('footer.role', 'fr', 'Développeur Web & Mobile'), ('footer.role', 'en', 'Web & Mobile Developer'),
-('footer.tagline', 'fr', 'CODE · DESIGN · INNOVE'), ('footer.tagline', 'en', 'CODE · DESIGN · INNOVATE');
+('footer.tagline', 'fr', 'CODE · DESIGN · INNOVE'), ('footer.tagline', 'en', 'CODE · DESIGN · INNOVATE')
+ON CONFLICT (translation_key, locale) DO NOTHING;
 
+-- ── Visits ──────────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS visits (
-  id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  id BIGSERIAL PRIMARY KEY,
   path VARCHAR(255) NOT NULL,
-  visited_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  visited_at TIMESTAMPTZ DEFAULT now(),
   ip_hash CHAR(64) DEFAULT ''
-) ENGINE=InnoDB;
+);

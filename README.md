@@ -1,89 +1,69 @@
-# YY — Yves Yao | Portfolio React + Express
+# YY — Yves Yao | Portfolio React + Tailwind CSS + Express & Supabase
 
-Le site utilise React et Vite pour l’interface, Express pour l’API et MySQL pour les données. Le schéma MySQL existant est conservé afin de préserver les projets, médias, messages et comptes administrateur.
+Portfolio professionnel développé avec **React 18**, **Tailwind CSS**, **Vite**, **Express** et **Supabase** (PostgreSQL cloud).
+
+---
+
+## Nouveautés
+
+- **Base de données Supabase** : Migration de MySQL vers Supabase via `@supabase/supabase-js`. Script SQL complet prêt pour le SQL Editor Supabase disponible dans `database/supabase_schema.sql`.
+- **Boutons Ultra Pro avec Tailwind CSS** : Tous les boutons (CTA Hero, Filtres, Formulaire de contact, Téléchargement de CV, Thème/Langue, WhatsApp flottant et boutons d'Administration) ont été modernisés avec Tailwind CSS (gradients subtils, effets de survol réactifs, glow et transitions fluides).
+
+---
 
 ## Prérequis
 
-- Node.js 20 ou plus récent et npm
-- MySQL 8 ou MariaDB avec une base de données configurée
+- Node.js 20+ et npm
+- Un compte / projet [Supabase](https://supabase.com) (gratuit)
 
-## Installation
+---
 
-1. Installer les dépendances depuis la racine :
+## Configuration de Supabase
 
-   ```powershell
-   npm install
-   ```
+1. Créez un projet sur [Supabase](https://supabase.com).
+2. Rendez-vous dans le **SQL Editor** de votre projet Supabase.
+3. Copiez et exécutez le script contenu dans [`database/supabase_schema.sql`](file:///c:/Users/hp/Documents/portfolio-yvesdevweb/database/supabase_schema.sql). Ce script crée toutes les tables (`settings`, `projects`, `skills`, `services`, `media_videos`, `testimonials`, `project_images`, `translations`, `messages`, `admins`, `sessions`, `visits`, etc.) et insère les données initiales.
+4. Rendez-vous dans **Project Settings > API** sur Supabase et récupérez :
+   - `Project URL`
+   - `service_role` (clé secrète pour le serveur Express) ou `anon` (clé publique).
 
-2. Copier `server/.env.example` vers `server/.env`, puis renseigner les paramètres MySQL. Remplacer également `SESSION_SECRET` par une valeur aléatoire longue.
-3. Si la base n’existe pas encore, importer `database/schema.sql` puis `database/features.sql`. Ne pas réimporter ces fichiers sur une base existante sans avoir vérifié les données : ils initialisent également du contenu de démonstration. L’API crée automatiquement ses tables de session, de limitation de connexion et d’audit.
-4. En développement, lancer Express et Vite :
+---
 
-   ```powershell
-   npm run dev
-   ```
+## Variables d'environnement
 
-   Ouvrir `http://localhost:5173`. Vite transmet les requêtes `/api` au serveur Express sur `http://localhost:3000`.
+Copiez `server/.env.example` vers `server/.env` :
 
-5. Pour la production, construire React puis démarrer Express :
+```env
+PORT=3000
+APP_URL=http://localhost:3000
+SESSION_SECRET=votre-cle-secrete-aleatoire-tres-longue
+COOKIE_SECURE=false
 
-   ```powershell
-   npm run build
-   npm start
-   ```
+# Supabase
+SUPABASE_URL=https://votre-projet.supabase.co
+SUPABASE_SERVICE_ROLE_KEY=votre-cle-service-role-supabase
+```
 
-   Le serveur Express sert alors le client construit sur le port indiqué par `PORT` (3000 par défaut).
+> **Note :** Si les clés Supabase ne sont pas encore renseignées, le serveur Express démarre automatiquement en mode local/démonstration sans planter, avec affichage d'un rappel explicatif.
 
-## Déploiement sur Vercel + Render
+---
 
-### Frontend Vercel
+## Démarrage en développement
 
-- Importer le dépôt GitHub dans Vercel.
-- Définir le dossier racine du projet sur `client` si tu déclares le projet depuis le dépôt complet.
-- Build command : `npm install && npm run build`
-- Output directory : `dist`
-- Ajouter une variable d’environnement dans Vercel :
+Pour lancer à la fois le client Vite et l'API Express :
 
-  ```env
-  VITE_API_BASE_URL=https://ton-backend.render.com
-  VITE_ASSETS_BASE_URL=https://ton-backend.render.com
-  ```
+```powershell
+npm run dev
+```
 
-- Le fichier `vercel.json` à la racine du dépôt permet de réécrire les routes SPA vers `index.html` pour les pages comme `/admin` et `/projects/:id`.
+- Frontend : `http://localhost:5173`
+- Backend API : `http://localhost:3000`
 
-### Backend Render
+---
 
-- Créer un service Web Node.js avec le dossier `server` comme racine.
-- Build command : `npm install`
-- Start command : `node src/index.js`
-- Définir les variables d’environnement suivantes :
+## Construction pour la production
 
-  ```env
-  PORT=10000
-  APP_URL=https://ton-front.vercel.app
-  SESSION_SECRET=remplacer-par-une-cle-secrete-longue
-  DB_HOST=host-mysql
-  DB_PORT=3306
-  DB_NAME=portfolio_yves_yao
-  DB_USER=utilisateur
-  DB_PASSWORD=motdepasse
-  COOKIE_SECURE=true
-  ```
-
-- Les uploads de médias restent sur le disque du backend et doivent donc être conservés sur le service backend, pas sur Vercel.
-
-## Administration
-
-- `/admin/setup` permet de créer le premier administrateur uniquement si aucun compte n’existe. Utiliser un mot de passe d’au moins 12 caractères.
-- `/admin` ouvre la connexion et le tableau de bord.
-- L’administration permet de gérer les projets, compétences, services, vidéos, médias, traductions, témoignages, messages, profil et comptes.
-- Les comptes déjà enregistrés dans MySQL restent utilisables. Les mots de passe historiques `password_hash` sont vérifiés au format bcrypt.
-- Les rôles limités ne peuvent pas gérer le profil, les traductions ou les utilisateurs.
-
-## Fichiers et sécurité
-
-- Les médias fournis restent dans `assets/`. Les nouveaux fichiers sont enregistrés dans `assets/projects/`, `assets/videos/` et `assets/uploads/`.
-- `server/.env` contient les secrets locaux et ne doit pas être ajouté au contrôle de version.
-- En production, activer HTTPS et définir `COOKIE_SECURE=true`.
-- Les formulaires protégés utilisent une session serveur MySQL et un jeton CSRF. Les connexions administrateur sont limitées après plusieurs échecs.
-- `database/schema.sql` et `database/features.sql` restent disponibles pour créer une base vierge et documenter le schéma conservé.
+```powershell
+npm run build
+npm start
+```
