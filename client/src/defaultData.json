@@ -1,0 +1,256 @@
+{
+  "settings": {
+    "id": 1,
+    "full_name": "Yves Yao",
+    "role": "Développeur Web & Mobile",
+    "tagline": "Je transforme les idées en solutions digitales.",
+    "about_text": "Je conçois des interfaces modernes, des applications web et mobiles et des systèmes de gestion pensés pour être utiles, rapides et élégants.",
+    "role_en": "Web & Mobile Developer",
+    "tagline_en": "Transforming ideas into digital solutions.",
+    "about_text_en": "I design modern interfaces, web & mobile applications, and management systems built to be efficient, fast and elegant.",
+    "email": "contact@yvesyao.dev",
+    "phone": "+225 00 00 00 00 00",
+    "location": "Côte d’Ivoire",
+    "photo": "assets/portrait.jpg",
+    "logo": "assets/logo-yy.png",
+    "linkedin": "",
+    "github": "",
+    "whatsapp": "+225 00 00 00 00 00"
+  },
+  "projects": [
+    {
+      "id": 1,
+      "title": "PointageRH",
+      "title_en": "PointageRH",
+      "category": "Web App · RH",
+      "category_en": "Web App · HR",
+      "description": "Dashboard RH avec pointage, congés, employés et rapports exportables.",
+      "description_en": "HR Dashboard with attendance, leave management, employees and exportable reports.",
+      "technologies": "PHP, MySQL, JavaScript, Chart.js, XLSX",
+      "image": "assets/projects/demo-pointage-rh.svg",
+      "cover_image": "assets/projects/demo-pointage-rh.svg",
+      "project_url": "",
+      "featured": 1,
+      "sort_order": 1
+    },
+    {
+      "id": 2,
+      "title": "Gestion des expéditions",
+      "title_en": "Shipment Management",
+      "category": "Système métier",
+      "category_en": "Business System",
+      "description": "Préparation, scan, flashage, récapitulatif et validation des expéditions.",
+      "description_en": "Preparation, scanning, barcode reading, summary and shipment validation.",
+      "technologies": "PHP, MySQL, API, Offline",
+      "image": "assets/projects/demo-expeditions.svg",
+      "cover_image": "assets/projects/demo-expeditions.svg",
+      "project_url": "",
+      "featured": 1,
+      "sort_order": 2
+    },
+    {
+      "id": 3,
+      "title": "Gestion de quincaillerie",
+      "title_en": "Hardware Store ERP",
+      "category": "Management · Commerce",
+      "category_en": "Management · Retail",
+      "description": "Outil de gestion des stocks, ventes, achats et opérations.",
+      "description_en": "Inventory management, sales tracking, purchases and operational reports.",
+      "technologies": "PHP, MySQL, Dashboard",
+      "image": "assets/projects/demo-quincaillerie.svg",
+      "cover_image": "assets/projects/demo-quincaillerie.svg",
+      "project_url": "",
+      "featured": 0,
+      "sort_order": 3
+    }
+  ],
+  "skills": [
+    {
+      "id": 1,
+      "name": "HTML / CSS / JavaScript",
+      "name_en": "HTML / CSS / JavaScript",
+      "category": "Front-end",
+      "category_en": "Front-end",
+      "level": 95,
+      "sort_order": 1
+    },
+    {
+      "id": 2,
+      "name": "React & Tailwind CSS",
+      "name_en": "React & Tailwind CSS",
+      "category": "Front-end",
+      "category_en": "Front-end",
+      "level": 90,
+      "sort_order": 2
+    },
+    {
+      "id": 3,
+      "name": "Node.js & Express",
+      "name_en": "Node.js & Express",
+      "category": "Back-end",
+      "category_en": "Back-end",
+      "level": 88,
+      "sort_order": 3
+    },
+    {
+      "id": 4,
+      "name": "Supabase & PostgreSQL",
+      "name_en": "Supabase & PostgreSQL",
+      "category": "Database",
+      "category_en": "Database",
+      "level": 85,
+      "sort_order": 4
+    },
+    {
+      "id": 5,
+      "name": "PHP / MySQL",
+      "name_en": "PHP / MySQL",
+      "category": "Back-end",
+      "category_en": "Back-end",
+      "level": 90,
+      "sort_order": 5
+    },
+    {
+      "id": 6,
+      "name": "UI/UX Design",
+      "name_en": "UI/UX Design",
+      "category": "Design",
+      "category_en": "Design",
+      "level": 82,
+      "sort_order": 6
+    }
+  ],
+  "services": [
+    {
+      "id": 1,
+      "title": "Sites Web & e-commerce",
+      "title_en": "Websites & E-commerce",
+      "description": "Présence digitale moderne, responsive et orientée conversion.",
+      "description_en": "Modern, responsive and conversion-oriented digital presence.",
+      "sort_order": 1,
+      "active": 1
+    },
+    {
+      "id": 2,
+      "title": "Applications Web & Mobile",
+      "title_en": "Web & Mobile Apps",
+      "description": "Interfaces métier et applications adaptées aux usages réels.",
+      "description_en": "Business-ready interfaces and web applications crafted for real workflows.",
+      "sort_order": 2,
+      "active": 1
+    },
+    {
+      "id": 3,
+      "title": "Systèmes de gestion & API",
+      "title_en": "Management Systems & APIs",
+      "description": "Dashboards, RH, stocks, ventes, rapports et automatisation cloud avec Supabase.",
+      "description_en": "Dashboards, inventory, sales, automated reports and cloud APIs with Supabase.",
+      "sort_order": 3,
+      "active": 1
+    },
+    {
+      "id": 4,
+      "title": "UI/UX & identité visuelle",
+      "title_en": "UI/UX & Visual Identity",
+      "description": "Design d’interfaces, prototypes interactifs et direction artistique digitale.",
+      "description_en": "Interface design, interactive prototypes and modern digital direction.",
+      "sort_order": 4,
+      "active": 1
+    }
+  ],
+  "videos": [
+    {
+      "id": 1,
+      "title": "Démonstration application & workflow",
+      "title_en": "Application Demo & Workflow",
+      "description": "Aperçu complet du tableau de bord de gestion, du pointage et des exports de données.",
+      "description_en": "Comprehensive overview of management dashboard, attendance tracking and data exports.",
+      "video_url": "assets/videos/2facca38c8bb088df970.mp4",
+      "poster_path": "assets/projects/demo-pointage-rh.svg",
+      "content_type": "formation",
+      "published": 1,
+      "sort_order": 1
+    },
+    {
+      "id": 2,
+      "title": "Système métier & Expéditions",
+      "title_en": "Logistics & Business System",
+      "description": "Fonctionnalités de préparation, validation d’expéditions et récapitulatif opérationnel.",
+      "description_en": "Preparation workflow, shipment validation and operational summary features.",
+      "video_url": "assets/videos/c16fdec68237f1074a92.mp4",
+      "poster_path": "assets/projects/demo-expeditions.svg",
+      "content_type": "seminaire",
+      "published": 1,
+      "sort_order": 2
+    }
+  ],
+  "testimonials": [
+    {
+      "id": 1,
+      "client_name": "Client projet RH",
+      "client_name_en": "HR Project Client",
+      "company": "Projet PointageRH",
+      "company_en": "PointageRH Project",
+      "quote": "Une solution claire, rapide et adaptée à nos besoins quotidiens.",
+      "quote_en": "A clear, fast and reliable solution tailored to our daily operations.",
+      "role": "Responsable projet",
+      "role_en": "Project Lead",
+      "active": 1,
+      "sort_order": 1
+    },
+    {
+      "id": 2,
+      "client_name": "Partenaire métier",
+      "client_name_en": "Operations Partner",
+      "company": "Projet expéditions",
+      "company_en": "Shipments Project",
+      "quote": "Une compréhension rapide du besoin et un outil vraiment opérationnel.",
+      "quote_en": "Quick understanding of requirements and a truly operational tool.",
+      "role": "Direction des opérations",
+      "role_en": "Operations Director",
+      "active": 1,
+      "sort_order": 2
+    }
+  ],
+  "images": [
+    {
+      "id": 1,
+      "project_id": 1,
+      "image_path": "assets/projects/demo-pointage-rh.svg",
+      "caption": "PointageRH Vue principale",
+      "sort_order": 1
+    },
+    {
+      "id": 2,
+      "project_id": 2,
+      "image_path": "assets/projects/demo-expeditions.svg",
+      "caption": "Expéditions Préparation & Scan",
+      "sort_order": 1
+    },
+    {
+      "id": 3,
+      "project_id": 3,
+      "image_path": "assets/projects/demo-quincaillerie.svg",
+      "caption": "Quincaillerie Gestion des stocks",
+      "sort_order": 1
+    }
+  ],
+  "translations": {
+    "fr.nav.about": "À propos",
+    "en.nav.about": "About",
+    "fr.nav.skills": "Compétences",
+    "en.nav.skills": "Skills",
+    "fr.nav.projects": "Projets",
+    "en.nav.projects": "Projects",
+    "fr.nav.services": "Services",
+    "en.nav.services": "Services",
+    "fr.nav.contact": "Me contacter",
+    "en.nav.contact": "Contact me",
+    "fr.cta.view_projects": "Voir mes projets",
+    "en.cta.view_projects": "View my projects",
+    "fr.cta.talk_project": "Parlons de votre projet",
+    "en.cta.talk_project": "Let’s talk about your project",
+    "fr.contact.success": "Merci, votre message a bien été envoyé.",
+    "en.contact.success": "Thank you, your message has been sent."
+  }
+}

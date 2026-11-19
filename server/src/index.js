@@ -449,5 +449,9 @@ app.use((error, req, res, next) => {
   res.status(500).json({ error: 'Une erreur interne est survenue.' });
 });
 
-await ensureRuntimeSchema();
-app.listen(port, () => console.log(`Portfolio Express prêt sur http://localhost:${port} (Base: Supabase)`));
+export default app;
+
+if (!process.env.VERCEL && process.env.NODE_ENV !== 'test') {
+  await ensureRuntimeSchema();
+  app.listen(port, () => console.log(`Portfolio Express prêt sur http://localhost:${port} (Base: Supabase)`));
+}

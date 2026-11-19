@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import './style.css';
+import defaultData from './defaultData.json';
 
 const apiBase = (import.meta.env.VITE_API_BASE_URL || '').replace(/\/$/, '');
 const assetBase = (import.meta.env.VITE_ASSETS_BASE_URL || apiBase || '').replace(/\/$/, '');
@@ -312,17 +313,29 @@ function ProjectDetail({ data, locale, setLocale }) {
 
 function App() {
   const [locale, setLocale] = useLocale();
-  const [data, setData] = useState(null);
+  const [data, setData] = useState(defaultData);
   const [admin, setAdmin] = useState(null);
   const [csrfToken, setCsrfToken] = useState('');
   const [setupAvailable, setSetupAvailable] = useState(false);
   const [error, setError] = useState('');
   const isAdmin = location.pathname.startsWith('/admin');
   useEffect(() => {
-    Promise.all([api('/public'), api('/admin/setup'), api('/admin/session')]).then(([publicData, setupData, sessionData]) => {
-      setData(publicData); setCsrfToken(setupData.csrfToken); setSetupAvailable(setupData.available); setAdmin(sessionData.admin);
-    }).catch((exception) => setError(exception.message));
-  }, []);
+    api('/public').then((publicData) => {
+      if (publicData && publicData.settings) setData(publicData);
+    }).catch((exception) => console.warn('API non joignable, affichage des données locales:', exception.message));
+
+    if (isAdmin) {
+      Promise.allSettled([api('/admin/setup'), api('/admin/session')]).then(([setupRes, sessionRes]) => {
+        if (setupRes.status === 'fulfilled' && setupRes.value) {
+          setCsrfToken(setupRes.value.csrfToken || '');
+          setSetupAvailable(Boolean(setupRes.value.available));
+        }
+        if (sessionRes.status === 'fulfilled' && sessionRes.value) {
+          setAdmin(sessionRes.value.admin || null);
+        }
+      });
+    }
+  }, [isAdmin]);
   useEffect(() => {
     if (isAdmin) return;
     api('/visits', { method: 'POST', body: JSON.stringify({ path: location.pathname }) }).catch((exception) => console.error('Visit tracking failed:', exception));
