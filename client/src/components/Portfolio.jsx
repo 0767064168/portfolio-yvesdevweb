@@ -115,17 +115,18 @@ export function Portfolio({ data, locale, setLocale, csrfToken }) {
             <div className="eyebrow">{t.available}</div>
             <h1>{locale === 'en' ? settings.tagline_en || settings.tagline : settings.tagline}</h1>
             <p>{locale === 'en' ? settings.about_text_en || settings.about_text : settings.about_text}</p>
-            <div className="actions">
+            <div className="actions flex flex-wrap items-center gap-3.5 pt-2">
               <a className="btn-pro-primary group" href="#projets">
                 <span>{t.viewProjects}</span>
-                <span className="inline-block transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5">↗</span>
+                <span className="inline-block transition-transform duration-200 group-hover:translate-x-1 group-hover:-translate-y-0.5 font-bold">↗</span>
               </a>
-              <a className="btn-pro-ghost" href="#contact">
-                {t.talk}
+              <a className="btn-pro-ghost group" href="#contact">
+                <span>{t.talk}</span>
+                <span className="inline-block transition-transform duration-200 group-hover:translate-x-1 text-sky-400">→</span>
               </a>
               <a className="btn-pro-cv group" href={apiUrl('/cv')}>
                 <span>{text('Télécharger le CV', 'Download CV')}</span>
-                <span className="inline-block transition-transform duration-200 group-hover:translate-y-0.5">↓</span>
+                <span className="inline-block transition-transform duration-200 group-hover:translate-y-1 text-sky-400 font-bold">↓</span>
               </a>
             </div>
             <div className="meta">
@@ -475,8 +476,14 @@ export function Portfolio({ data, locale, setLocale, csrfToken }) {
           rel="noopener noreferrer"
           aria-label="WhatsApp"
         >
-          <span className="whatsapp-icon group-hover:scale-110 transition-transform">✆</span>
-          <span className="whatsapp-label">{text('Écrire sur WhatsApp', 'Chat on WhatsApp')}</span>
+          <span className="relative flex h-2.5 w-2.5">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
+            <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-white"></span>
+          </span>
+          <svg className="w-4 h-4 fill-current shrink-0" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M12.04 2C6.54 2 2.06 6.48 2.06 12c0 1.85.5 3.65 1.45 5.23L2 22l4.9-1.47A9.91 9.91 0 0 0 12.04 22c5.5 0 9.98-4.48 9.98-10s-4.48-10-9.98-10zm5.82 14.15c-.24.68-1.2 1.25-1.89 1.33-.51.05-1.17.08-3.48-.88-2.94-1.28-4.81-4.27-4.96-4.47-.14-.2-1.2-1.6-1.2-3.05 0-1.45.75-2.16 1.02-2.45.27-.3.59-.37.79-.37.2 0 .39 0 .56.01.18.01.41-.07.65.5.24.58.83 2.02.9 2.16.07.14.12.32.03.5-.1.19-.15.31-.3.47-.15.16-.31.37-.44.5-.15.14-.3.3-.13.6.17.31.79 1.3 1.7 2.11 1.16 1.03 2.14 1.35 2.45 1.51.31.15.49.13.67-.08.18-.21.78-.91.99-1.22.2-.31.41-.26.68-.16.28.1 1.76.83 2.06.98.31.15.51.23.59.36.08.13.08.74-.16 1.42z"/>
+          </svg>
+          <span className="whatsapp-label font-bold tracking-wide">{text('Discuter sur WhatsApp', 'Chat on WhatsApp')}</span>
         </a>
       )}
 
