@@ -2,7 +2,6 @@ import React, { useEffect, useState, Suspense, lazy } from 'react';
 import { createRoot } from 'react-dom/client';
 import './style.css';
 import './site.css';
-import './admin.css';
 import defaultData from './defaultData.json';
 import { api, apiBase } from './utils/api.js';
 import { Portfolio } from './components/Portfolio.jsx';

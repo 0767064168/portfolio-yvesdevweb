@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import '../../admin.css';
 import { api, apiUrl, asset, apiBase } from '../../utils/api.js';
 import defaultData from '../../defaultData.json';
 import { messages, fieldLabels } from '../../locales/messages.js';
