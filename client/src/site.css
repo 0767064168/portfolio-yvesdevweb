@@ -60,6 +60,12 @@ body .whatsapp-float:focus-visible{outline:3px solid rgba(169,255,204,.95);outli
 .actions .btn{font-size:0}.actions .primary:before{content:'Voir mes projets';font-size:13px}.actions .ghost:before{content:'Parlons de votre projet';font-size:13px}.navbtn:after{content:'↗';margin-left:8px;font-size:15px}
 .form .btn.is-sending{font-size:0;opacity:.72;cursor:wait}.form .btn.is-sending:before{content:'Envoi en cours…';font-size:13px}
 .scroll-reveal{opacity:0;transform:translateY(18px);transition:opacity .65s ease var(--reveal-delay),transform .65s ease var(--reveal-delay)}.scroll-reveal.is-visible{opacity:1;transform:none}
+.scroll-reveal.is-visible .card:nth-child(1),.scroll-reveal.is-visible .method-steps article:nth-child(1),.scroll-reveal.is-visible .principles-grid article:nth-child(1){animation:rise .5s ease .05s both}
+.scroll-reveal.is-visible .card:nth-child(2),.scroll-reveal.is-visible .method-steps article:nth-child(2),.scroll-reveal.is-visible .principles-grid article:nth-child(2){animation:rise .5s ease .12s both}
+.scroll-reveal.is-visible .card:nth-child(3),.scroll-reveal.is-visible .method-steps article:nth-child(3),.scroll-reveal.is-visible .principles-grid article:nth-child(3){animation:rise .5s ease .19s both}
+.scroll-reveal.is-visible .card:nth-child(4),.scroll-reveal.is-visible .method-steps article:nth-child(4){animation:rise .5s ease .26s both}
+.scroll-reveal.is-visible .card:nth-child(5){animation:rise .5s ease .33s both}
+.scroll-reveal.is-visible .card:nth-child(6){animation:rise .5s ease .40s both}
 @media(max-width:850px){.nav{position:relative}.menu{width:44px;height:44px;border:1px solid rgba(123,212,255,.22);border-radius:12px;background:rgba(255,255,255,.04);transition:background .2s ease,transform .2s ease}.menu:hover,.menu.is-open{background:rgba(22,168,255,.14);transform:translateY(-1px)}nav.is-open{display:flex;position:absolute;top:70px;right:0;left:0;gap:4px;padding:12px;background:rgba(8,16,29,.98);border:1px solid var(--line);border-radius:16px;box-shadow:0 22px 45px rgba(0,0,0,.34);animation:menu-in .2s ease both}nav.is-open a{width:100%;padding:12px 14px;border-radius:9px}nav.is-open a:hover{background:rgba(255,255,255,.06)}nav.is-open a:not(.navbtn):after{display:none}.brand-logo{width:126px;height:54px}}@keyframes menu-in{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
 .brand-logo{width:72px;height:58px;object-fit:cover;object-position:center 27%;border-radius:12px}
 html,body{overflow-x:hidden}

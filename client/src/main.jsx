@@ -42,6 +42,7 @@ function useLocale() {
 
 function App() {
   const [locale, setLocale] = useLocale();
+  const [loading, setLoading] = useState(() => !location.pathname.startsWith('/admin'));
   const [data, setData] = useState(() => {
     try {
       const saved = localStorage.getItem('portfolio-custom-data');
@@ -111,6 +112,13 @@ function App() {
 
   // Dynamic SEO metadata updates
   useEffect(() => {
+    // Dismiss page loader after initial render
+    if (loading) {
+      const timer = setTimeout(() => setLoading(false), 800);
+      return () => clearTimeout(timer);
+    }
+  }, [loading]);
+  useEffect(() => {
     if (isAdmin) {
       document.title = 'Administration — Yves Yao';
       return;
@@ -176,7 +184,19 @@ function App() {
   }
 
   // Route: Main Portfolio
-  return <Portfolio data={data} locale={locale} setLocale={setLocale} csrfToken={csrfToken} />;
+  return (
+    <>
+      {/* PAGE LOADER */}
+      <div className={`page-loader ${!loading ? 'is-hidden' : ''}`} aria-hidden={!loading}>
+        <picture>
+          <source srcSet="/assets/logo-yy.webp" type="image/webp" />
+          <img src="/assets/logo-yy.png" alt="" width="132" height="58" />
+        </picture>
+        <span></span>
+      </div>
+      <Portfolio data={data} locale={locale} setLocale={setLocale} csrfToken={csrfToken} />
+    </>
+  );
 }
 
 const reactRoot = createRoot(document.getElementById('root'));

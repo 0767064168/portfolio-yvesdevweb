@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Header } from './Header.jsx';
 import { Footer } from './Footer.jsx';
 import { ProjectCard } from './ProjectCard.jsx';
@@ -50,6 +50,19 @@ export function Portfolio({ data, locale, setLocale, csrfToken }) {
   ).size;
 
   const text = (fr, en) => (locale === 'en' ? en : fr);
+
+  // Scroll-reveal IntersectionObserver
+  const mainRef = useRef(null);
+  useEffect(() => {
+    const els = mainRef.current?.querySelectorAll('.scroll-reveal');
+    if (!els || !els.length) return;
+    const io = new IntersectionObserver(
+      (entries) => entries.forEach((e) => { if (e.isIntersecting) { e.target.classList.add('is-visible'); io.unobserve(e.target); } }),
+      { threshold: 0.12, rootMargin: '0px 0px -40px 0px' }
+    );
+    els.forEach((el) => io.observe(el));
+    return () => io.disconnect();
+  }, [data]);
 
   const send = async (event) => {
     event.preventDefault();
@@ -108,7 +121,7 @@ export function Portfolio({ data, locale, setLocale, csrfToken }) {
         {text('Aller au contenu', 'Skip to content')}
       </a>
 
-      <main id="main-content">
+      <main id="main-content" ref={mainRef}>
         {/* HERO SECTION */}
         <section className="wrap hero">
           <div className="hero-copy">
@@ -182,11 +195,19 @@ export function Portfolio({ data, locale, setLocale, csrfToken }) {
             <span>PHP & MYSQL</span><i>✦</i>
             <span>REST API & WEBSOCKET</span><i>✦</i>
             <span>PWA & MOBILE</span><i>✦</i>
+            {/* Duplicate for seamless loop */}
+            <span>REACT</span><i>✦</i>
+            <span>TAILWIND CSS</span><i>✦</i>
+            <span>NODE.JS & EXPRESS</span><i>✦</i>
+            <span>SUPABASE & POSTGRESQL</span><i>✦</i>
+            <span>PHP & MYSQL</span><i>✦</i>
+            <span>REST API & WEBSOCKET</span><i>✦</i>
+            <span>PWA & MOBILE</span><i>✦</i>
           </div>
         </div>
 
         {/* 01 ABOUT */}
-        <section id="apropos" className="wrap section split">
+        <section id="apropos" className="wrap section split scroll-reveal" style={{'--reveal-delay':'0s'}}>
           <div>
             <span className="kicker">01 — {t.about.toUpperCase()}</span>
             <h2>{t.aboutTitle} <span className="gradient">{t.aboutEnd}</span></h2>
@@ -199,7 +220,7 @@ export function Portfolio({ data, locale, setLocale, csrfToken }) {
         </section>
 
         {/* 02 METHOD */}
-        <section className="wrap section method">
+        <section className="wrap section method scroll-reveal" style={{'--reveal-delay':'0s'}}>
           <div className="method-intro">
             <span className="kicker">02 — {text('MÉTHODE', 'METHOD')}</span>
             <h2>{text('De l’idée à', 'From idea to')} <span className="gradient">{text('l’impact.', 'impact.')}</span></h2>
@@ -238,7 +259,7 @@ export function Portfolio({ data, locale, setLocale, csrfToken }) {
         </section>
 
         {/* PROOF STRIP */}
-        <section className="proof-strip">
+        <section className="proof-strip scroll-reveal" style={{'--reveal-delay':'0s'}}>
           <div className="wrap proof-grid">
             <article>
               <strong>{projects.length}</strong>
@@ -260,7 +281,7 @@ export function Portfolio({ data, locale, setLocale, csrfToken }) {
         </section>
 
         {/* 03 WHY ME / PRINCIPLES */}
-        <section className="wrap section principles">
+        <section className="wrap section principles scroll-reveal" style={{'--reveal-delay':'0s'}}>
           <div className="principles-heading">
             <span className="kicker">03 — {text("POURQUOI MOI", "WHY WORK TOGETHER")}</span>
             <h2>{text("Un partenaire qui pense au-delà", "A partner who thinks beyond")} <span className="gradient">{text("du code.", "the code.")}</span></h2>
@@ -301,7 +322,7 @@ export function Portfolio({ data, locale, setLocale, csrfToken }) {
         </section>
 
         {/* 04 SKILLS */}
-        <section id="competences" className="wrap section">
+        <section id="competences" className="wrap section scroll-reveal" style={{'--reveal-delay':'0s'}}>
           <div className="section-heading">
             <span className="kicker">04 — {t.skills.toUpperCase()}</span>
             <h2>{t.skillsTitle} <span className="gradient">{t.skillsEnd}</span></h2>
@@ -321,7 +342,7 @@ export function Portfolio({ data, locale, setLocale, csrfToken }) {
         </section>
 
         {/* 05 PROJECTS / CASE STUDIES */}
-        <section id="projets" className="wrap section">
+        <section id="projets" className="wrap section scroll-reveal" style={{'--reveal-delay':'0s'}}>
           <div className="section-heading">
             <span className="kicker">05 — {t.projects.toUpperCase()}</span>
             <h2>{t.projectsTitle} <span className="gradient">{t.projectsEnd}</span></h2>
@@ -348,7 +369,7 @@ export function Portfolio({ data, locale, setLocale, csrfToken }) {
         </section>
 
         {/* 06 MEDIA / VIDEOS */}
-        <section id="contenus" className="wrap section">
+        <section id="contenus" className="wrap section scroll-reveal" style={{'--reveal-delay':'0s'}}>
           <div className="section-heading">
             <span className="kicker">06 — {text('MÉDIAS', 'MEDIA')}</span>
             <h2>{text('Démonstrations &', 'Walkthroughs &')} <span className="gradient">{text('vidéos.', 'videos.')}</span></h2>
@@ -389,7 +410,7 @@ export function Portfolio({ data, locale, setLocale, csrfToken }) {
         </section>
 
         {/* 07 SERVICES */}
-        <section id="services" className="wrap section">
+        <section id="services" className="wrap section scroll-reveal" style={{'--reveal-delay':'0s'}}>
           <div className="section-heading">
             <span className="kicker">07 — {t.services.toUpperCase()}</span>
             <h2>{t.servicesTitle} <span className="gradient">{t.servicesEnd}</span></h2>
@@ -406,7 +427,7 @@ export function Portfolio({ data, locale, setLocale, csrfToken }) {
         </section>
 
         {/* 08 TESTIMONIALS */}
-        <section className="wrap section testimonials">
+        <section className="wrap section testimonials scroll-reveal" style={{'--reveal-delay':'0s'}}>
           <div className="section-heading">
             <span className="kicker">08 — {text('RETOURS CLIENTS', 'CLIENT REVIEWS')}</span>
             <h2>{t.reviews}</h2>
@@ -428,7 +449,7 @@ export function Portfolio({ data, locale, setLocale, csrfToken }) {
         </section>
 
         {/* 09 CONTACT */}
-        <section id="contact" className="wrap section contact-section">
+        <section id="contact" className="wrap section contact-section scroll-reveal" style={{'--reveal-delay':'0s'}}>
           <div>
             <span className="kicker">09 — {t.contact.toUpperCase()}</span>
             <h2>{t.contactTitle} <span className="gradient">{t.contactEnd}</span></h2>
@@ -558,6 +579,20 @@ export function Portfolio({ data, locale, setLocale, csrfToken }) {
           <span>CODE · ARCHITECTURE · DESIGN · {text('INNOVE', 'INNOVATE')}</span>
           <i>✦</i>
           <span>{locale === 'en' ? settings.role_en || settings.role : settings.role}</span>
+          <i>✦</i>
+          <span>REACT · NODE · SUPABASE · PHP</span>
+          <i>✦</i>
+          <span>{settings.full_name || 'YVES YAO'}</span>
+          <i>✦</i>
+          {/* Duplicate for seamless loop */}
+          <span>CODE · ARCHITECTURE · DESIGN · {text('INNOVE', 'INNOVATE')}</span>
+          <i>✦</i>
+          <span>{locale === 'en' ? settings.role_en || settings.role : settings.role}</span>
+          <i>✦</i>
+          <span>REACT · NODE · SUPABASE · PHP</span>
+          <i>✦</i>
+          <span>{settings.full_name || 'YVES YAO'}</span>
+          <i>✦</i>
         </div>
       </div>
 

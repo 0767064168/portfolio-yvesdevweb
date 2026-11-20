@@ -112,7 +112,7 @@
 .service-card .num{color:#70cfff}
 .contact-section{display:grid;grid-template-columns:1fr 1fr;gap:40px}
 .contact-links{display:flex;gap:15px;flex-wrap:wrap}
-.footer-logo{width:84px;max-height:50px;object-fit:contain}
+.footer-logo{width:115px;max-height:58px;object-fit:contain}
 .footer{display:flex;align-items:center;justify-content:space-between;gap:20px}
 .footer a{color:#70cfff}
 .project-detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:35px}
