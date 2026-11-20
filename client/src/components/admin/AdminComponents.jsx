@@ -2,6 +2,47 @@ import React, { useState, useEffect } from 'react';
 import { api, apiUrl, asset, apiBase } from '../../utils/api.js';
 import defaultData from '../../defaultData.json';
 import { messages, fieldLabels } from '../../locales/messages.js';
+import {
+  IconOverview,
+  IconProfile,
+  IconProjects,
+  IconSkills,
+  IconServices,
+  IconMessages,
+  IconTestimonials,
+  IconVideos,
+  IconBackup,
+  IconLogout,
+  IconExternal,
+  IconPlus,
+  IconEdit,
+  IconTrash,
+  IconCheck,
+  IconSearch,
+  IconSave,
+  IconCopy,
+  IconDownload,
+  IconUpload,
+  IconKey,
+  IconLightning,
+  IconEye,
+  IconEyeOff,
+  IconPhone,
+  IconMail,
+  IconMapPin,
+  IconStar,
+  IconRefresh,
+  IconClose,
+  IconArchive,
+  IconSettings,
+  IconImage,
+  IconBrandWhatsApp,
+  IconBrandLinkedIn,
+  IconBrandGitHub,
+  IconBrandTikTok,
+  IconBrandInstagram,
+  IconBrandFacebook
+} from './AdminIcons.jsx';
 
 // Helper: load initial messages from localStorage or defaults
 function getStoredMessages() {
@@ -105,14 +146,16 @@ export function AdminLogin({ csrfToken, onLogin }) {
         <div className="mb-6 p-4 rounded-xl bg-sky-950/40 border border-sky-500/30 text-xs text-slate-300 space-y-2">
           <div className="flex items-center justify-between">
             <strong className="text-sky-300 font-semibold flex items-center gap-1.5">
-              <span>🔑</span> Identifiants d’accès :
+              <IconKey size={14} className="text-sky-400" />
+              <span>Identifiants d’accès :</span>
             </strong>
             <button
               type="button"
               onClick={fillDefaultCredentials}
-              className="text-[11px] px-2 py-0.5 rounded-md bg-sky-500/20 hover:bg-sky-500/30 text-sky-200 border border-sky-400/30 transition-colors font-medium"
+              className="text-[11px] px-2 py-0.5 rounded-md bg-sky-500/20 hover:bg-sky-500/30 text-sky-200 border border-sky-400/30 transition-colors font-medium flex items-center gap-1"
             >
-              ⚡ Remplir
+              <IconLightning size={12} className="text-amber-400" />
+              <span>Remplir</span>
             </button>
           </div>
           <div className="grid grid-cols-1 gap-1 font-mono text-[11px] bg-black/30 p-2 rounded-lg border border-white/5">
@@ -167,7 +210,7 @@ export function AdminLogin({ csrfToken, onLogin }) {
                 onClick={() => setShowPassword(!showPassword)}
                 className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-200 text-sm p-1"
               >
-                {showPassword ? '👁️' : '👁️‍🗨️'}
+                {showPassword ? <IconEyeOff size={16} /> : <IconEye size={16} />}
               </button>
             </div>
           </label>
@@ -183,7 +226,10 @@ export function AdminLogin({ csrfToken, onLogin }) {
                 Connexion en cours…
               </span>
             ) : (
-              <span>Se connecter au tableau de bord ↗</span>
+              <span className="flex items-center justify-center gap-2">
+                <span>Se connecter au tableau de bord</span>
+                <IconExternal size={14} />
+              </span>
             )}
           </button>
         </form>
@@ -198,7 +244,7 @@ export function AdminLogin({ csrfToken, onLogin }) {
           </a>
 
           <p className="text-[10px] text-slate-500 flex items-center justify-center gap-1.5">
-            <span>🔒</span>
+            <IconKey size={12} className="text-slate-400" />
             <span>Session sécurisée · Protection anti-bruteforce</span>
           </p>
         </div>
@@ -315,7 +361,7 @@ function AdminSettingsView({ data, onUpdateData, onShowToast }) {
     const updatedData = { ...data, settings: form };
     onUpdateData(updatedData);
     setSaving(false);
-    onShowToast('✅ Profil et réseaux sociaux enregistrés avec succès !');
+    onShowToast('Profil et réseaux sociaux enregistrés avec succès !');
   };
 
   return (
@@ -323,21 +369,26 @@ function AdminSettingsView({ data, onUpdateData, onShowToast }) {
       <div className="flex items-center justify-between pb-4 border-b border-white/10">
         <div>
           <h2 className="text-lg font-bold text-white flex items-center gap-2">
-            <span>👤</span> Profil Professionnel & Coordonnées
+            <IconProfile size={20} className="text-sky-400" />
+            <span>Profil Professionnel & Coordonnées</span>
           </h2>
           <p className="text-xs text-slate-400">
             Modifiez vos informations personnelles, bio, coordonnées directes et liens réseaux sociaux.
           </p>
         </div>
         <button type="submit" disabled={saving} className="admin-btn admin-btn-primary">
-          {saving ? 'Enregistrement…' : '💾 Enregistrer les modifications'}
+          <IconSave size={15} />
+          <span>{saving ? 'Enregistrement…' : 'Enregistrer les modifications'}</span>
         </button>
       </div>
 
       {/* Identité & Rôles */}
       <div className="admin-card">
         <div className="admin-card-head">
-          <h2><span>🏷️</span> Identité & Titres</h2>
+          <h2>
+            <IconProfile size={18} className="text-sky-400" />
+            <span>Identité & Titres</span>
+          </h2>
         </div>
         <div className="admin-form-grid-2">
           <div className="admin-form-group">
@@ -397,7 +448,10 @@ function AdminSettingsView({ data, onUpdateData, onShowToast }) {
       {/* Biographie & Présentation */}
       <div className="admin-card">
         <div className="admin-card-head">
-          <h2><span>📝</span> Biographie & Présentation (À propos)</h2>
+          <h2>
+            <IconEdit size={18} className="text-sky-400" />
+            <span>Biographie & Présentation (À propos)</span>
+          </h2>
         </div>
         <div className="admin-form-grid-2">
           <div className="admin-form-group">
@@ -424,11 +478,17 @@ function AdminSettingsView({ data, onUpdateData, onShowToast }) {
       {/* Coordonnées de contact */}
       <div className="admin-card">
         <div className="admin-card-head">
-          <h2><span>📞</span> Coordonnées Directes</h2>
+          <h2>
+            <IconPhone size={18} className="text-sky-400" />
+            <span>Coordonnées Directes</span>
+          </h2>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="admin-form-group">
-            <label>Email de contact</label>
+            <label className="flex items-center gap-1.5">
+              <IconMail size={14} className="text-slate-400" />
+              <span>Email de contact</span>
+            </label>
             <input
               type="email"
               className="admin-input"
@@ -438,7 +498,10 @@ function AdminSettingsView({ data, onUpdateData, onShowToast }) {
             />
           </div>
           <div className="admin-form-group">
-            <label>Téléphone direct</label>
+            <label className="flex items-center gap-1.5">
+              <IconPhone size={14} className="text-slate-400" />
+              <span>Téléphone direct</span>
+            </label>
             <input
               type="tel"
               className="admin-input"
@@ -448,7 +511,10 @@ function AdminSettingsView({ data, onUpdateData, onShowToast }) {
             />
           </div>
           <div className="admin-form-group">
-            <label>Numéro WhatsApp</label>
+            <label className="flex items-center gap-1.5">
+              <IconBrandWhatsApp size={14} />
+              <span>Numéro WhatsApp</span>
+            </label>
             <input
               type="tel"
               className="admin-input"
@@ -463,7 +529,10 @@ function AdminSettingsView({ data, onUpdateData, onShowToast }) {
       {/* Réseaux Sociaux & Liens */}
       <div className="admin-card">
         <div className="admin-card-head">
-          <h2><span>🌐</span> Liens Réseaux Sociaux & Profils Web</h2>
+          <h2>
+            <IconExternal size={18} className="text-sky-400" />
+            <span>Liens Réseaux Sociaux & Profils Web</span>
+          </h2>
         </div>
         <p className="text-xs text-slate-400 mb-4">
           Ces liens sont affichés dans l’en-tête, le pied de page et la section contact avec leurs logos officiels.
@@ -471,7 +540,8 @@ function AdminSettingsView({ data, onUpdateData, onShowToast }) {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="admin-form-group">
             <label className="flex items-center gap-2">
-              <span>💼</span> LinkedIn URL
+              <IconBrandLinkedIn size={16} />
+              <span>LinkedIn URL</span>
             </label>
             <input
               type="url"
@@ -483,7 +553,8 @@ function AdminSettingsView({ data, onUpdateData, onShowToast }) {
           </div>
           <div className="admin-form-group">
             <label className="flex items-center gap-2">
-              <span>🐙</span> GitHub URL
+              <IconBrandGitHub size={16} />
+              <span>GitHub URL</span>
             </label>
             <input
               type="url"
@@ -495,7 +566,8 @@ function AdminSettingsView({ data, onUpdateData, onShowToast }) {
           </div>
           <div className="admin-form-group">
             <label className="flex items-center gap-2">
-              <span>🎵</span> TikTok URL
+              <IconBrandTikTok size={16} />
+              <span>TikTok URL</span>
             </label>
             <input
               type="url"
@@ -507,7 +579,8 @@ function AdminSettingsView({ data, onUpdateData, onShowToast }) {
           </div>
           <div className="admin-form-group">
             <label className="flex items-center gap-2">
-              <span>📸</span> Instagram URL
+              <IconBrandInstagram size={16} />
+              <span>Instagram URL</span>
             </label>
             <input
               type="url"
@@ -519,7 +592,8 @@ function AdminSettingsView({ data, onUpdateData, onShowToast }) {
           </div>
           <div className="admin-form-group">
             <label className="flex items-center gap-2">
-              <span>👥</span> Facebook URL
+              <IconBrandFacebook size={16} />
+              <span>Facebook URL</span>
             </label>
             <input
               type="url"
@@ -535,7 +609,10 @@ function AdminSettingsView({ data, onUpdateData, onShowToast }) {
       {/* Médias & Visuels */}
       <div className="admin-card">
         <div className="admin-card-head">
-          <h2><span>🖼️</span> Médias & Branding</h2>
+          <h2>
+            <IconImage size={18} className="text-sky-400" />
+            <span>Médias & Branding</span>
+          </h2>
         </div>
         <div className="admin-form-grid-2">
           <div className="admin-form-group">
@@ -561,7 +638,8 @@ function AdminSettingsView({ data, onUpdateData, onShowToast }) {
 
       <div className="flex justify-end pt-4">
         <button type="submit" disabled={saving} className="admin-btn admin-btn-primary px-8 py-3 text-sm">
-          {saving ? 'Enregistrement…' : '💾 Enregistrer les modifications'}
+          <IconSave size={16} />
+          <span>{saving ? 'Enregistrement…' : 'Enregistrer les modifications'}</span>
         </button>
       </div>
     </form>
@@ -600,7 +678,7 @@ function AdminProjectsView({ data, onUpdateData, onShowToast }) {
     setProjects(updated);
     onUpdateData({ ...data, projects: updated });
     setEditingProject(null);
-    onShowToast('✅ Projet enregistré avec succès !');
+    onShowToast('Projet enregistré avec succès !');
   };
 
   const deleteProject = (id) => {
@@ -608,7 +686,7 @@ function AdminProjectsView({ data, onUpdateData, onShowToast }) {
     const updated = projects.filter((p) => p.id !== id);
     setProjects(updated);
     onUpdateData({ ...data, projects: updated });
-    onShowToast('🗑️ Projet supprimé.');
+    onShowToast('Projet supprimé.');
   };
 
   return (
@@ -616,7 +694,8 @@ function AdminProjectsView({ data, onUpdateData, onShowToast }) {
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-4 border-b border-white/10">
         <div>
           <h2 className="text-lg font-bold text-white flex items-center gap-2">
-            <span>💼</span> Projets & Études de Cas ({projects.length})
+            <IconProjects size={20} className="text-sky-400" />
+            <span>Projets & Études de Cas ({projects.length})</span>
           </h2>
           <p className="text-xs text-slate-400">
             Gérez vos réalisations, les technologies utilisées et le détail des études de cas (Challenge, Solution, Impact).
@@ -647,19 +726,25 @@ function AdminProjectsView({ data, onUpdateData, onShowToast }) {
           }
           className="admin-btn admin-btn-primary"
         >
-          <span>+ Nouveau Projet</span>
+          <IconPlus size={15} />
+          <span>Nouveau Projet</span>
         </button>
       </div>
 
       {/* Filters & Search */}
       <div className="flex flex-col sm:flex-row gap-3">
-        <input
-          type="text"
-          placeholder="Rechercher par titre, stack ou mot-clé…"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="admin-input flex-1"
-        />
+        <div className="relative flex-1">
+          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500">
+            <IconSearch size={14} />
+          </span>
+          <input
+            type="text"
+            placeholder="Rechercher par titre, stack ou mot-clé…"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="admin-input pl-9"
+          />
+        </div>
         <div className="flex flex-wrap gap-1.5">
           {categories.map((c) => (
             <button
@@ -690,7 +775,10 @@ function AdminProjectsView({ data, onUpdateData, onShowToast }) {
                   <h3 className="text-base font-bold text-white mt-0.5">{proj.title}</h3>
                 </div>
                 {proj.featured ? (
-                  <span className="admin-badge admin-badge-amber">⭐ En vedette</span>
+                  <span className="admin-badge admin-badge-amber flex items-center gap-1">
+                    <IconStar size={12} />
+                    <span>En vedette</span>
+                  </span>
                 ) : null}
               </div>
 
@@ -714,23 +802,25 @@ function AdminProjectsView({ data, onUpdateData, onShowToast }) {
                 href={`/projects/${proj.id}`}
                 target="_blank"
                 rel="noreferrer"
-                className="text-sky-400 hover:text-sky-300 flex items-center gap-1 font-medium"
+                className="text-sky-400 hover:text-sky-300 flex items-center gap-1.5 font-medium"
               >
                 <span>Fiche publique</span>
-                <span>↗</span>
+                <IconExternal size={12} />
               </a>
               <div className="flex items-center gap-2">
                 <button
                   onClick={() => setEditingProject(proj)}
-                  className="admin-btn admin-btn-secondary py-1 px-2.5 text-xs"
+                  className="admin-btn admin-btn-secondary py-1 px-2.5 text-xs flex items-center gap-1"
                 >
-                  ✏️ Modifier
+                  <IconEdit size={12} />
+                  <span>Modifier</span>
                 </button>
                 <button
                   onClick={() => deleteProject(proj.id)}
                   className="admin-btn admin-btn-danger py-1 px-2.5 text-xs"
+                  aria-label="Supprimer le projet"
                 >
-                  🗑️
+                  <IconTrash size={12} />
                 </button>
               </div>
             </div>
@@ -743,14 +833,16 @@ function AdminProjectsView({ data, onUpdateData, onShowToast }) {
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm overflow-y-auto">
           <div className="bg-[#0b1526] border border-sky-400/30 rounded-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto p-6 shadow-2xl">
             <div className="flex items-center justify-between pb-4 border-b border-white/10 mb-6">
-              <h3 className="text-lg font-bold text-white">
-                {editingProject.id ? 'Modifier le projet' : 'Nouveau Projet'}
+              <h3 className="text-lg font-bold text-white flex items-center gap-2">
+                <IconProjects size={18} className="text-sky-400" />
+                <span>{editingProject.id ? 'Modifier le projet' : 'Nouveau Projet'}</span>
               </h3>
               <button
                 onClick={() => setEditingProject(null)}
-                className="text-slate-400 hover:text-white text-xl p-1"
+                className="text-slate-400 hover:text-white p-1"
+                aria-label="Fermer"
               >
-                ✕
+                <IconClose size={18} />
               </button>
             </div>
 
@@ -831,8 +923,9 @@ function AdminProjectsView({ data, onUpdateData, onShowToast }) {
 
               {/* Étude de cas (Challenge, Solution, Impact) */}
               <div className="p-4 rounded-xl bg-black/30 border border-white/5 space-y-3">
-                <span className="font-semibold text-sky-400 block text-xs uppercase tracking-wider">
-                  Étude de cas détaillée (Case Study)
+                <span className="font-semibold text-sky-400 flex items-center gap-1.5 text-xs uppercase tracking-wider">
+                  <IconSkills size={14} />
+                  <span>Étude de cas détaillée (Case Study)</span>
                 </span>
                 <div className="admin-form-grid-2">
                   <div className="admin-form-group">
@@ -927,7 +1020,10 @@ function AdminProjectsView({ data, onUpdateData, onShowToast }) {
                       checked={Boolean(editingProject.featured)}
                       onChange={(e) => setEditingProject({ ...editingProject, featured: e.target.checked ? 1 : 0 })}
                     />
-                    <span className="text-white font-medium">Mettre en vedette ⭐</span>
+                    <span className="text-white font-medium flex items-center gap-1.5">
+                      <IconStar size={13} className="text-amber-400" />
+                      <span>Mettre en vedette</span>
+                    </span>
                   </label>
                 </div>
               </div>
@@ -941,7 +1037,8 @@ function AdminProjectsView({ data, onUpdateData, onShowToast }) {
                   Annuler
                 </button>
                 <button type="submit" className="admin-btn admin-btn-primary">
-                  Enregistrer le projet
+                  <IconSave size={14} />
+                  <span>Enregistrer le projet</span>
                 </button>
               </div>
             </form>
@@ -1005,14 +1102,16 @@ export function AdminMessages({ csrfToken, onLogout }) {
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-4 border-b border-white/10">
         <div>
           <h2 className="text-lg font-bold text-white flex items-center gap-2">
-            <span>💬</span> Boîte de réception ({messagesList.length})
+            <IconMessages size={20} className="text-sky-400" />
+            <span>Boîte de réception ({messagesList.length})</span>
           </h2>
           <p className="text-xs text-slate-400">
             Messages reçus via le formulaire de contact public de votre portfolio.
           </p>
         </div>
-        <button onClick={addTestMessage} className="admin-btn admin-btn-secondary text-xs">
-          <span>+ Simuler un message de test</span>
+        <button onClick={addTestMessage} className="admin-btn admin-btn-secondary text-xs flex items-center gap-1.5">
+          <IconPlus size={13} />
+          <span>Simuler un message de test</span>
         </button>
       </div>
 
@@ -1064,7 +1163,7 @@ export function AdminMessages({ csrfToken, onLogout }) {
                         : 'admin-badge-blue'
                     }`}
                   >
-                    {msg.status === 'new' ? '🟢 Nouveau' : msg.status === 'archived' ? '📦 Archivé' : '✓ Lu'}
+                    {msg.status === 'new' ? 'Nouveau' : msg.status === 'archived' ? 'Archivé' : 'Lu'}
                   </span>
                   <span className="text-[11px] text-slate-500">
                     {new Date(msg.created_at).toLocaleString()}
@@ -1079,32 +1178,37 @@ export function AdminMessages({ csrfToken, onLogout }) {
               <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-white/5 text-xs">
                 <a
                   href={`mailto:${msg.email}?subject=Re:%20Votre%20projet%20-%20Yves%20Yao`}
-                  className="admin-btn admin-btn-primary py-1 px-3 text-xs"
+                  className="admin-btn admin-btn-primary py-1 px-3 text-xs flex items-center gap-1.5"
                 >
-                  <span>✉️ Répondre par email</span>
+                  <IconMail size={13} />
+                  <span>Répondre par email</span>
                 </a>
                 <div className="flex items-center gap-2">
                   {msg.status !== 'read' && (
                     <button
                       onClick={() => updateStatus(msg.id, 'read')}
-                      className="admin-btn admin-btn-secondary py-1 px-2.5 text-xs"
+                      className="admin-btn admin-btn-secondary py-1 px-2.5 text-xs flex items-center gap-1"
                     >
-                      Marquer comme lu
+                      <IconCheck size={12} />
+                      <span>Marquer comme lu</span>
                     </button>
                   )}
                   {msg.status !== 'archived' && (
                     <button
                       onClick={() => updateStatus(msg.id, 'archived')}
-                      className="admin-btn admin-btn-secondary py-1 px-2.5 text-xs"
+                      className="admin-btn admin-btn-secondary py-1 px-2.5 text-xs flex items-center gap-1"
                     >
-                      Archiver
+                      <IconArchive size={12} />
+                      <span>Archiver</span>
                     </button>
                   )}
                   <button
                     onClick={() => removeMessage(msg.id)}
-                    className="admin-btn admin-btn-danger py-1 px-2.5 text-xs"
+                    className="admin-btn admin-btn-danger py-1 px-2.5 text-xs flex items-center gap-1"
+                    aria-label="Supprimer le message"
                   >
-                    Supprimer
+                    <IconTrash size={12} />
+                    <span>Supprimer</span>
                   </button>
                 </div>
               </div>
@@ -1129,13 +1233,13 @@ export function AdminBackup({ admin, csrfToken, onLogout, data, onUpdateData, on
     a.download = `portfolio-backup-${new Date().toISOString().split('T')[0]}.json`;
     a.click();
     URL.revokeObjectURL(url);
-    if (onShowToast) onShowToast('📥 Fichier de sauvegarde JSON téléchargé !');
+    if (onShowToast) onShowToast('Fichier de sauvegarde JSON téléchargé !');
   };
 
   const copyJsonToClipboard = () => {
     const jsonStr = JSON.stringify(data || defaultData, null, 2);
     navigator.clipboard.writeText(jsonStr);
-    if (onShowToast) onShowToast('📋 Données JSON copiées dans le presse-papier !');
+    if (onShowToast) onShowToast('Données JSON copiées dans le presse-papier !');
   };
 
   const handleFileUpload = (e) => {
@@ -1147,7 +1251,7 @@ export function AdminBackup({ admin, csrfToken, onLogout, data, onUpdateData, on
         const parsed = JSON.parse(event.target.result);
         if (parsed && parsed.settings && Array.isArray(parsed.projects)) {
           onUpdateData(parsed);
-          if (onShowToast) onShowToast('✅ Sauvegarde restaurée avec succès !');
+          if (onShowToast) onShowToast('Sauvegarde restaurée avec succès !');
         } else {
           alert('Format de fichier JSON invalide. Le fichier doit contenir les clés "settings" et "projects".');
         }
@@ -1162,14 +1266,15 @@ export function AdminBackup({ admin, csrfToken, onLogout, data, onUpdateData, on
     if (!confirm('Attention : réinitialiser toutes les données aux valeurs par défaut de démonstration ?')) return;
     onUpdateData(defaultData);
     localStorage.removeItem('portfolio-custom-data');
-    if (onShowToast) onShowToast('🔄 Données réinitialisées aux valeurs par défaut.');
+    if (onShowToast) onShowToast('Données réinitialisées aux valeurs par défaut.');
   };
 
   return (
     <div className="space-y-6">
       <div className="pb-4 border-b border-white/10">
         <h2 className="text-lg font-bold text-white flex items-center gap-2">
-          <span>💾</span> Sauvegarde, Export & Restauration
+          <IconBackup size={20} className="text-sky-400" />
+          <span>Sauvegarde, Export & Restauration</span>
         </h2>
         <p className="text-xs text-slate-400">
           Exportez et importez l’ensemble des données de votre portfolio (projets, compétences, profils, services).
@@ -1179,30 +1284,39 @@ export function AdminBackup({ admin, csrfToken, onLogout, data, onUpdateData, on
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="admin-card space-y-4">
           <div className="admin-card-head">
-            <h2><span>📤</span> Exporter les données</h2>
+            <h2>
+              <IconDownload size={18} className="text-sky-400" />
+              <span>Exporter les données</span>
+            </h2>
           </div>
           <p className="text-xs text-slate-400">
             Téléchargez un snapshot complet de toutes vos modifications au format JSON. Idéal pour conserver une copie ou synchroniser avec le dépôt GitHub.
           </p>
           <div className="flex flex-col sm:flex-row gap-3 pt-2">
             <button onClick={downloadBackup} className="admin-btn admin-btn-primary flex-1">
-              <span>📥 Télécharger la sauvegarde JSON</span>
+              <IconDownload size={15} />
+              <span>Télécharger la sauvegarde JSON</span>
             </button>
             <button onClick={copyJsonToClipboard} className="admin-btn admin-btn-secondary">
-              <span>📋 Copier JSON</span>
+              <IconCopy size={15} />
+              <span>Copier JSON</span>
             </button>
           </div>
         </div>
 
         <div className="admin-card space-y-4">
           <div className="admin-card-head">
-            <h2><span>📥</span> Restaurer une sauvegarde</h2>
+            <h2>
+              <IconUpload size={18} className="text-sky-400" />
+              <span>Restaurer une sauvegarde</span>
+            </h2>
           </div>
           <p className="text-xs text-slate-400">
             Sélectionnez un fichier JSON de sauvegarde précédemment exporté pour écraser et actualiser instantanément les données du site.
           </p>
-          <label className="admin-btn admin-btn-secondary w-full text-center cursor-pointer block">
-            <span>📁 Choisir un fichier JSON à restaurer…</span>
+          <label className="admin-btn admin-btn-secondary w-full text-center cursor-pointer flex items-center justify-center gap-2">
+            <IconUpload size={15} />
+            <span>Choisir un fichier JSON à restaurer…</span>
             <input type="file" accept=".json,application/json" onChange={handleFileUpload} className="hidden" />
           </label>
         </div>
@@ -1216,8 +1330,9 @@ export function AdminBackup({ admin, csrfToken, onLogout, data, onUpdateData, on
               Rétablit les données de démonstration initiales et efface les modifications locales.
             </span>
           </div>
-          <button onClick={resetToFactory} className="admin-btn admin-btn-danger text-xs">
-            Réinitialiser les données
+          <button onClick={resetToFactory} className="admin-btn admin-btn-danger text-xs flex items-center gap-1.5">
+            <IconRefresh size={13} />
+            <span>Réinitialiser les données</span>
           </button>
         </div>
       </div>
@@ -1251,7 +1366,7 @@ function AdminGenericView({ section, data, onUpdateData, onShowToast }) {
     setList(updated);
     onUpdateData({ ...data, [key]: updated });
     setModalItem(null);
-    onShowToast('✅ Élément enregistré.');
+    onShowToast('Élément enregistré.');
   };
 
   const removeItem = (id) => {
@@ -1259,7 +1374,7 @@ function AdminGenericView({ section, data, onUpdateData, onShowToast }) {
     const updated = list.filter((x) => x.id !== id);
     setList(updated);
     onUpdateData({ ...data, [key]: updated });
-    onShowToast('🗑️ Élément supprimé.');
+    onShowToast('Élément supprimé.');
   };
 
   const filtered = list.filter((item) => {
@@ -1272,7 +1387,8 @@ function AdminGenericView({ section, data, onUpdateData, onShowToast }) {
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-4 border-b border-white/10">
         <div>
           <h2 className="text-lg font-bold text-white flex items-center gap-2">
-            <span>⚙️</span> {messages[section] || section} ({list.length})
+            <IconSettings size={20} className="text-sky-400" />
+            <span>{messages[section] || section} ({list.length})</span>
           </h2>
           <p className="text-xs text-slate-400">
             Gestion des éléments de la section {messages[section] || section}.
@@ -1286,17 +1402,23 @@ function AdminGenericView({ section, data, onUpdateData, onShowToast }) {
           }}
           className="admin-btn admin-btn-primary"
         >
-          <span>+ Ajouter</span>
+          <IconPlus size={15} />
+          <span>Ajouter</span>
         </button>
       </div>
 
-      <input
-        type="text"
-        placeholder="Rechercher…"
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
-        className="admin-input max-w-sm"
-      />
+      <div className="relative max-w-sm">
+        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500">
+          <IconSearch size={14} />
+        </span>
+        <input
+          type="text"
+          placeholder="Rechercher…"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="admin-input pl-9"
+        />
+      </div>
 
       <div className="admin-card p-0 overflow-hidden">
         <div className="overflow-x-auto">
@@ -1324,14 +1446,16 @@ function AdminGenericView({ section, data, onUpdateData, onShowToast }) {
                       <button
                         onClick={() => setModalItem(item)}
                         className="admin-btn admin-btn-secondary py-1 px-2.5 text-xs"
+                        aria-label="Modifier"
                       >
-                        ✏️
+                        <IconEdit size={12} />
                       </button>
                       <button
                         onClick={() => removeItem(item.id)}
                         className="admin-btn admin-btn-danger py-1 px-2.5 text-xs"
+                        aria-label="Supprimer"
                       >
-                        🗑️
+                        <IconTrash size={12} />
                       </button>
                     </div>
                   </td>
@@ -1349,7 +1473,9 @@ function AdminGenericView({ section, data, onUpdateData, onShowToast }) {
               <h3 className="text-base font-bold text-white">
                 {modalItem.id ? 'Modifier' : 'Ajouter'} — {messages[section] || section}
               </h3>
-              <button onClick={() => setModalItem(null)} className="text-slate-400 hover:text-white">✕</button>
+              <button onClick={() => setModalItem(null)} className="text-slate-400 hover:text-white">
+                <IconClose size={18} />
+              </button>
             </div>
             <form
               onSubmit={(e) => {
@@ -1373,7 +1499,8 @@ function AdminGenericView({ section, data, onUpdateData, onShowToast }) {
                   Annuler
                 </button>
                 <button type="submit" className="admin-btn admin-btn-primary">
-                  Enregistrer
+                  <IconSave size={14} />
+                  <span>Enregistrer</span>
                 </button>
               </div>
             </form>
@@ -1403,7 +1530,7 @@ function AdminOverviewView({ data, admin, onNavigate, onShowToast }) {
             Tableau de Bord
           </span>
           <h2 className="text-2xl font-bold text-white">
-            Bonjour, {admin?.name || 'Yves Yao'} 👋
+            Bonjour, {admin?.name || 'Yves Yao'}
           </h2>
           <p className="text-xs text-slate-300 mt-1 max-w-xl">
             Bienvenue dans votre centre de commande professionnel. Toute modification enregistrée est instantanément synchronisée sur votre site public.
@@ -1414,15 +1541,17 @@ function AdminOverviewView({ data, admin, onNavigate, onShowToast }) {
             href="/"
             target="_blank"
             rel="noreferrer"
-            className="admin-btn admin-btn-primary text-xs"
+            className="admin-btn admin-btn-primary text-xs flex items-center gap-1.5"
           >
-            <span>🌐 Voir le site public ↗</span>
+            <span>Voir le site public</span>
+            <IconExternal size={13} />
           </a>
           <button
             onClick={() => onNavigate('settings')}
-            className="admin-btn admin-btn-secondary text-xs"
+            className="admin-btn admin-btn-secondary text-xs flex items-center gap-1.5"
           >
-            <span>✏️ Profil & Réseaux</span>
+            <IconProfile size={14} />
+            <span>Profil & Réseaux</span>
           </button>
         </div>
       </div>
@@ -1432,18 +1561,23 @@ function AdminOverviewView({ data, admin, onNavigate, onShowToast }) {
         <div className="admin-kpi cursor-pointer" onClick={() => onNavigate('projects')}>
           <div className="admin-kpi-top">
             <span className="admin-kpi-label">Projets publiés</span>
-            <span className="admin-kpi-icon">💼</span>
+            <span className="admin-kpi-icon text-sky-400">
+              <IconProjects size={20} />
+            </span>
           </div>
           <div className="admin-kpi-value">{projects.length}</div>
-          <div className="admin-kpi-meta text-emerald-400">
-            {projects.filter((p) => p.featured).length} mis en vedette ⭐
+          <div className="admin-kpi-meta text-emerald-400 flex items-center gap-1">
+            <IconStar size={12} />
+            <span>{projects.filter((p) => p.featured).length} mis en vedette</span>
           </div>
         </div>
 
         <div className="admin-kpi cursor-pointer" onClick={() => onNavigate('skills')}>
           <div className="admin-kpi-top">
             <span className="admin-kpi-label">Compétences</span>
-            <span className="admin-kpi-icon">🛠️</span>
+            <span className="admin-kpi-icon text-indigo-400">
+              <IconSkills size={20} />
+            </span>
           </div>
           <div className="admin-kpi-value">{skills.length}</div>
           <div className="admin-kpi-meta text-sky-400">
@@ -1454,7 +1588,9 @@ function AdminOverviewView({ data, admin, onNavigate, onShowToast }) {
         <div className="admin-kpi cursor-pointer" onClick={() => onNavigate('messages')}>
           <div className="admin-kpi-top">
             <span className="admin-kpi-label">Messages reçus</span>
-            <span className="admin-kpi-icon">💬</span>
+            <span className="admin-kpi-icon text-amber-400">
+              <IconMessages size={20} />
+            </span>
           </div>
           <div className="admin-kpi-value">{messagesList.length}</div>
           <div className="admin-kpi-meta text-amber-400">
@@ -1465,7 +1601,9 @@ function AdminOverviewView({ data, admin, onNavigate, onShowToast }) {
         <div className="admin-kpi">
           <div className="admin-kpi-top">
             <span className="admin-kpi-label">Visites estimées</span>
-            <span className="admin-kpi-icon">👁️</span>
+            <span className="admin-kpi-icon text-slate-400">
+              <IconEye size={20} />
+            </span>
           </div>
           <div className="admin-kpi-value">142</div>
           <div className="admin-kpi-meta text-slate-400">
@@ -1479,12 +1617,16 @@ function AdminOverviewView({ data, admin, onNavigate, onShowToast }) {
         {/* Messages Récents */}
         <div className="admin-card">
           <div className="admin-card-head">
-            <h2><span>📬</span> Messages récents</h2>
+            <h2>
+              <IconMail size={18} className="text-sky-400" />
+              <span>Messages récents</span>
+            </h2>
             <button
               onClick={() => onNavigate('messages')}
-              className="text-xs text-sky-400 hover:text-sky-300 font-semibold"
+              className="text-xs text-sky-400 hover:text-sky-300 font-semibold flex items-center gap-1"
             >
-              Voir tout ({messagesList.length}) ↗
+              <span>Voir tout ({messagesList.length})</span>
+              <IconExternal size={12} />
             </button>
           </div>
           {messagesList.length === 0 ? (
@@ -1513,15 +1655,18 @@ function AdminOverviewView({ data, admin, onNavigate, onShowToast }) {
         {/* Projets Clés & Liens rapides */}
         <div className="admin-card space-y-4">
           <div className="admin-card-head">
-            <h2><span>⚡</span> Accès Rapides</h2>
+            <h2>
+              <IconLightning size={18} className="text-amber-400" />
+              <span>Accès Rapides</span>
+            </h2>
           </div>
           <div className="space-y-2">
             {[
-              { label: 'Gérer les Projets & Études de cas', sec: 'projects', icon: '💼' },
-              { label: 'Mettre à jour le Profil & Réseaux Sociaux', sec: 'settings', icon: '👤' },
-              { label: 'Consulter la Boîte de Réception', sec: 'messages', icon: '💬' },
-              { label: 'Compétences & Stack technique', sec: 'skills', icon: '🛠️' },
-              { label: 'Sauvegarder & Exporter les données (JSON)', sec: 'backup', icon: '💾' }
+              { label: 'Gérer les Projets & Études de cas', sec: 'projects', IconComp: IconProjects },
+              { label: 'Mettre à jour le Profil & Réseaux Sociaux', sec: 'settings', IconComp: IconProfile },
+              { label: 'Consulter la Boîte de Réception', sec: 'messages', IconComp: IconMessages },
+              { label: 'Compétences & Stack technique', sec: 'skills', IconComp: IconSkills },
+              { label: 'Sauvegarder & Exporter les données (JSON)', sec: 'backup', IconComp: IconBackup }
             ].map((item) => (
               <button
                 key={item.sec}
@@ -1529,10 +1674,10 @@ function AdminOverviewView({ data, admin, onNavigate, onShowToast }) {
                 className="w-full flex items-center justify-between p-3 rounded-xl bg-black/20 hover:bg-sky-500/10 border border-white/5 hover:border-sky-500/30 text-xs text-slate-300 hover:text-white transition-all text-left"
               >
                 <span className="flex items-center gap-2.5">
-                  <span>{item.icon}</span>
+                  <item.IconComp size={16} className="text-sky-400" />
                   <span className="font-medium">{item.label}</span>
                 </span>
-                <span className="text-sky-400">→</span>
+                <span className="text-sky-400 font-bold">→</span>
               </button>
             ))}
           </div>
@@ -1591,15 +1736,15 @@ export function AdminPanel({ admin, csrfToken, onLogout, initialSection, data: p
   }, []);
 
   const navLinks = [
-    { id: 'overview', label: "Vue d'ensemble", icon: '📊' },
-    { id: 'settings', label: 'Profil & Réseaux', icon: '👤' },
-    { id: 'projects', label: 'Projets & Études', icon: '💼' },
-    { id: 'skills', label: 'Compétences', icon: '🛠️' },
-    { id: 'services', label: 'Services', icon: '🚀' },
-    { id: 'messages', label: 'Messages', icon: '💬', badge: getStoredMessages().filter((m) => m.status === 'new').length },
-    { id: 'testimonials', label: 'Témoignages', icon: '🌟' },
-    { id: 'media_videos', label: 'Vidéos', icon: '🎬' },
-    { id: 'backup', label: 'Sauvegarde & Export', icon: '💾' }
+    { id: 'overview', label: "Vue d'ensemble", IconComp: IconOverview },
+    { id: 'settings', label: 'Profil & Réseaux', IconComp: IconProfile },
+    { id: 'projects', label: 'Projets & Études', IconComp: IconProjects },
+    { id: 'skills', label: 'Compétences', IconComp: IconSkills },
+    { id: 'services', label: 'Services', IconComp: IconServices },
+    { id: 'messages', label: 'Messages', IconComp: IconMessages, badge: getStoredMessages().filter((m) => m.status === 'new').length },
+    { id: 'testimonials', label: 'Témoignages', IconComp: IconTestimonials },
+    { id: 'media_videos', label: 'Vidéos', IconComp: IconVideos },
+    { id: 'backup', label: 'Sauvegarde & Export', IconComp: IconBackup }
   ];
 
   return (
@@ -1623,7 +1768,9 @@ export function AdminPanel({ admin, csrfToken, onLogout, initialSection, data: p
               onClick={() => navigate(item.id)}
               className={`admin-nav-item ${section === item.id ? 'is-active' : ''}`}
             >
-              <span className="admin-nav-icon">{item.icon}</span>
+              <span className="admin-nav-icon">
+                <item.IconComp size={17} />
+              </span>
               <span>{item.label}</span>
               {item.badge > 0 && <span className="admin-nav-badge">{item.badge}</span>}
             </div>
@@ -1640,9 +1787,10 @@ export function AdminPanel({ admin, csrfToken, onLogout, initialSection, data: p
           </a>
           <button
             onClick={onLogout}
-            className="admin-btn admin-btn-danger w-full justify-start text-xs py-2"
+            className="admin-btn admin-btn-danger w-full justify-start text-xs py-2 flex items-center gap-2"
           >
-            <span>🚪 Déconnexion</span>
+            <IconLogout size={14} />
+            <span>Déconnexion</span>
           </button>
         </div>
       </aside>
@@ -1660,7 +1808,7 @@ export function AdminPanel({ admin, csrfToken, onLogout, initialSection, data: p
               <span>{apiBase ? 'Connecté (API)' : 'Autonome (Vercel)'}</span>
             </div>
             <div className="admin-user-pill">
-              <span>👤</span>
+              <IconProfile size={14} className="text-sky-400" />
               <span>{admin?.name || 'Yves Yao'}</span>
             </div>
           </div>
@@ -1718,7 +1866,12 @@ export function AdminPanel({ admin, csrfToken, onLogout, initialSection, data: p
         </div>
       </main>
 
-      {toast && <div className="admin-toast">{toast}</div>}
+      {toast && (
+        <div className="admin-toast flex items-center gap-2">
+          <IconCheck size={16} className="text-emerald-400" />
+          <span>{toast}</span>
+        </div>
+      )}
     </div>
   );
 }
