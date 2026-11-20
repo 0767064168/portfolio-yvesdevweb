@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import './style.css';
+import './site.css';
+import './admin.css';
 import defaultData from './defaultData.json';
 
 const apiBase = (import.meta.env.VITE_API_BASE_URL || '').replace(/\/$/, '');
@@ -339,12 +341,6 @@ function App() {
   useEffect(() => {
     if (isAdmin) return;
     api('/visits', { method: 'POST', body: JSON.stringify({ path: location.pathname }) }).catch((exception) => console.error('Visit tracking failed:', exception));
-  }, [isAdmin]);
-  useEffect(() => {
-    const href = isAdmin ? '/admin/assets/admin.css' : '/assets/site.css?v=26';
-    const link = document.createElement('link'); link.rel = 'stylesheet'; link.href = href; link.dataset.appStyle = 'true';
-    document.head.append(link);
-    return () => link.remove();
   }, [isAdmin]);
   useEffect(() => {
     if (isAdmin) {
