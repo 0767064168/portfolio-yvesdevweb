@@ -36,9 +36,9 @@
     @apply text-white bg-gradient-to-r from-sky-500 via-blue-600 to-indigo-600 border-sky-400/60 shadow-[0_4px_16px_rgba(14,165,233,0.35),inset_0_1px_0_rgba(255,255,255,0.3)] ring-1 ring-white/30;
   }
 
-  /* Bouton WhatsApp Flottant Pro (Badge officiel & pulsation) */
+  /* Bouton WhatsApp Flottant Pro (Bouton d'action circulaire FAB remonté) */
   .btn-pro-whatsapp {
-    @apply fixed bottom-6 right-6 z-50 flex items-center justify-center w-14 h-14 rounded-full text-white bg-gradient-to-tr from-[#128C7E] to-[#25D366] hover:from-[#0e7467] hover:to-[#20bd5a] border-2 border-white/30 shadow-[0_10px_25px_rgba(37,211,102,0.45),inset_0_1px_0_rgba(255,255,255,0.4)] hover:shadow-[0_14px_32px_rgba(37,211,102,0.65)] hover:scale-110 active:scale-95 transition-all duration-300 select-none cursor-pointer;
+    @apply fixed bottom-14 right-6 sm:bottom-16 sm:right-8 z-50 flex items-center justify-center w-14 h-14 rounded-full text-white bg-gradient-to-tr from-[#128C7E] to-[#25D366] hover:from-[#0e7467] hover:to-[#20bd5a] border-2 border-white/30 shadow-[0_10px_25px_rgba(37,211,102,0.45),inset_0_1px_0_rgba(255,255,255,0.4)] hover:shadow-[0_14px_32px_rgba(37,211,102,0.65)] hover:scale-110 active:scale-95 transition-all duration-300 select-none cursor-pointer;
   }
 
   /* Boutons d'Action Admin Pro */

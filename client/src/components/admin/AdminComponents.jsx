@@ -1797,6 +1797,7 @@ export function AdminPanel({ admin, csrfToken, onLogout, initialSection, data: p
 
   const [section, setSection] = useState(initialSection || getSectionFromUrl);
   const [toast, setToast] = useState('');
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const showToast = (msg) => {
     setToast(msg);
@@ -1813,6 +1814,7 @@ export function AdminPanel({ admin, csrfToken, onLogout, initialSection, data: p
 
   const navigate = (sec) => {
     setSection(sec);
+    setMobileMenuOpen(false);
     const newPath = sec === 'overview' ? '/admin' : `/admin/${sec}`;
     window.history.pushState(null, '', newPath);
   };
@@ -1839,9 +1841,17 @@ export function AdminPanel({ admin, csrfToken, onLogout, initialSection, data: p
 
   return (
     <div className="admin-shell">
+      {/* Mobile Drawer Backdrop */}
+      {mobileMenuOpen && (
+        <div
+          className="admin-sidebar-backdrop"
+          onClick={() => setMobileMenuOpen(false)}
+        />
+      )}
+
       {/* Sidebar Navigation */}
-      <aside className="admin-sidebar">
-        <div className="admin-sidebar-header">
+      <aside className={`admin-sidebar ${mobileMenuOpen ? 'is-open' : ''}`}>
+        <div className="admin-sidebar-header flex items-center justify-between">
           <a href="/admin" onClick={(e) => { e.preventDefault(); navigate('overview'); }} className="admin-sidebar-logo">
             <img src="/assets/logo-yy.png" alt="Yves Yao" />
             <div className="admin-sidebar-title">
@@ -1849,6 +1859,16 @@ export function AdminPanel({ admin, csrfToken, onLogout, initialSection, data: p
               <span>Administration Pro</span>
             </div>
           </a>
+          <button
+            type="button"
+            className="admin-sidebar-close text-slate-400 hover:text-white p-1"
+            onClick={() => setMobileMenuOpen(false)}
+            aria-label="Fermer le menu"
+          >
+            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
         </div>
 
         <nav className="admin-sidebar-nav">
@@ -1889,8 +1909,20 @@ export function AdminPanel({ admin, csrfToken, onLogout, initialSection, data: p
       <main className="admin-content">
         <div className="admin-topbar">
           <div className="admin-topbar-left">
-            <span>ESPACE DE GESTION</span>
-            <h1>{navLinks.find((l) => l.id === section)?.label || 'Administration'}</h1>
+            <button
+              type="button"
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="admin-mobile-toggle"
+              aria-label="Ouvrir le menu de navigation"
+            >
+              <svg className="w-5 h-5 text-sky-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+              </svg>
+            </button>
+            <div>
+              <span>ESPACE DE GESTION</span>
+              <h1>{navLinks.find((l) => l.id === section)?.label || 'Administration'}</h1>
+            </div>
           </div>
           <div className="admin-topbar-right">
             <div className="admin-status-pill">
