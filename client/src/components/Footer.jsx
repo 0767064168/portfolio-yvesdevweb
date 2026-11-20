@@ -9,16 +9,18 @@ export function Footer({ settings = {}, locale }) {
     <footer>
       <div className="wrap footer flex flex-col md:flex-row items-center justify-between gap-6 py-8">
         <div className="flex items-center gap-4">
-          <picture>
-            <source srcSet={asset('assets/logo-yy.webp')} type="image/webp" />
-            <img
-              className="footer-logo"
-              src={asset(settings.logo || 'assets/logo-yy.png')}
-              alt={settings.full_name || 'Yves Yao'}
-              width="115"
-              height="58"
-            />
-          </picture>
+          <div className="footer-logo-wrap">
+            <picture>
+              <source srcSet={asset('assets/logo-yy.webp')} type="image/webp" />
+              <img
+                className="footer-logo"
+                src={asset(settings.logo || 'assets/logo-yy.png')}
+                alt={settings.full_name || 'Yves Yao'}
+                width="115"
+                height="58"
+              />
+            </picture>
+          </div>
           <div>
             <p className="font-semibold text-slate-200">
               © {new Date().getFullYear()} {settings.full_name || 'Yves Yao'}
