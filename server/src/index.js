@@ -126,7 +126,18 @@ app.use(helmet({ contentSecurityPolicy: false }));
 app.use(express.json({ limit: '1mb' }));
 app.use(express.urlencoded({ extended: false, limit: '1mb' }));
 
-const sessionSecret = process.env.SESSION_SECRET || 'yy-portfolio-default-dev-secret-change-in-production';
+const isProduction = process.env.NODE_ENV === 'production' || Boolean(process.env.VERCEL) || Boolean(process.env.RAILWAY_ENVIRONMENT) || Boolean(process.env.RENDER);
+
+let sessionSecret = process.env.SESSION_SECRET;
+if (!sessionSecret) {
+  if (isProduction) {
+    console.warn('⚠️ [Sécurité] SESSION_SECRET n\'est pas défini en production. Génération automatique d\'une clé secrète cryptographique éphémère.');
+    sessionSecret = crypto.randomBytes(48).toString('hex');
+  } else {
+    sessionSecret = 'yy-portfolio-default-dev-secret-change-in-production';
+  }
+}
+
 const sessionStore = new SupabaseSessionStore();
 
 app.use(session({
@@ -138,7 +149,7 @@ app.use(session({
   cookie: {
     httpOnly: true,
     sameSite: 'lax',
-    secure: process.env.COOKIE_SECURE === 'true',
+    secure: process.env.COOKIE_SECURE ? process.env.COOKIE_SECURE === 'true' : isProduction,
     maxAge: 2 * 60 * 60 * 1000
   }
 }));

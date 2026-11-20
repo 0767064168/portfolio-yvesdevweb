@@ -62,6 +62,15 @@ function getStoredMessages() {
   ];
 }
 
+// Cryptographic SHA-256 with salt for secure verification (never stores plaintext in JS bundle)
+export async function hashAdminPassword(password) {
+  const encoder = new TextEncoder();
+  const data = encoder.encode(`yy-salt-2026:${password}`);
+  const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  return hashArray.map((b) => b.toString(16).padStart(2, '0')).join('');
+}
+
 // --------------------------------------------------------------------------
 // 1. ADMIN LOGIN
 // --------------------------------------------------------------------------
@@ -93,22 +102,28 @@ export function AdminLogin({ csrfToken, onLogin }) {
       }
     }
 
-    // Standalone fallback authentication
+    // Standalone fallback authentication with SHA-256 salted hash verification
     const emailNorm = form.email.trim().toLowerCase();
-    if (
-      (emailNorm === 'admin@yvesyao.dev' || emailNorm === 'contact@yvesyao.dev' || emailNorm === 'admin') &&
-      form.password === 'YvesDevWeb@2026!'
-    ) {
-      const mockAdmin = {
-        id: 1,
-        name: 'Yves Yao',
-        email: 'admin@yvesyao.dev',
-        role: 'admin'
-      };
-      localStorage.setItem('portfolio-admin-session', JSON.stringify(mockAdmin));
-      onLogin({ admin: mockAdmin, csrfToken: 'standalone-session' });
-    } else {
-      setError('Identifiants invalides. Utilisez l’email admin@yvesyao.dev et le mot de passe attribué.');
+    const allowedEmails = ['admin@yvesyao.dev', 'contact@yvesyao.dev', 'admin'];
+    const DEFAULT_HASH = 'ad46e1d74d71072a759879ab00de720c55315acb2bb6e576937357ac04dcfc86';
+    const storedHash = localStorage.getItem('portfolio-admin-pwd-hash') || DEFAULT_HASH;
+
+    try {
+      const inputHash = await hashAdminPassword(form.password);
+      if (allowedEmails.includes(emailNorm) && inputHash === storedHash) {
+        const mockAdmin = {
+          id: 1,
+          name: 'Yves Yao',
+          email: 'admin@yvesyao.dev',
+          role: 'admin'
+        };
+        localStorage.setItem('portfolio-admin-session', JSON.stringify(mockAdmin));
+        onLogin({ admin: mockAdmin, csrfToken: 'standalone-session' });
+      } else {
+        setError('Identifiants invalides. Vérifiez l’adresse email et le mot de passe.');
+      }
+    } catch (e) {
+      setError('Erreur lors de la vérification sécurisée.');
     }
     setBusy(false);
   };
@@ -307,6 +322,9 @@ export function AdminSetup({ csrfToken }) {
 function AdminSettingsView({ data, onUpdateData, onShowToast }) {
   const [form, setForm] = useState(data.settings || {});
   const [saving, setSaving] = useState(false);
+  const [pwdForm, setPwdForm] = useState({ current: '', next: '', confirm: '' });
+  const [pwdSaving, setPwdSaving] = useState(false);
+  const [pwdFeedback, setPwdFeedback] = useState(null);
 
   const save = async (e) => {
     e.preventDefault();
@@ -329,7 +347,55 @@ function AdminSettingsView({ data, onUpdateData, onShowToast }) {
     onShowToast('Profil et réseaux sociaux enregistrés avec succès !');
   };
 
+  const changePassword = async (e) => {
+    e.preventDefault();
+    setPwdFeedback(null);
+    if (!pwdForm.next || pwdForm.next.length < 8) {
+      setPwdFeedback({ error: true, text: 'Le nouveau mot de passe doit comporter au moins 8 caractères.' });
+      return;
+    }
+    if (pwdForm.next !== pwdForm.confirm) {
+      setPwdFeedback({ error: true, text: 'Les deux nouveaux mots de passe ne correspondent pas.' });
+      return;
+    }
+
+    setPwdSaving(true);
+    const DEFAULT_HASH = 'ad46e1d74d71072a759879ab00de720c55315acb2bb6e576937357ac04dcfc86';
+    const storedHash = localStorage.getItem('portfolio-admin-pwd-hash') || DEFAULT_HASH;
+
+    try {
+      const currentHash = await hashAdminPassword(pwdForm.current);
+      if (currentHash !== storedHash) {
+        setPwdFeedback({ error: true, text: 'Mot de passe actuel incorrect.' });
+        setPwdSaving(false);
+        return;
+      }
+
+      const nextHash = await hashAdminPassword(pwdForm.next);
+      localStorage.setItem('portfolio-admin-pwd-hash', nextHash);
+
+      if (apiBase) {
+        try {
+          await api('/admin/resources/admins/1', {
+            method: 'PUT',
+            body: JSON.stringify({ password: pwdForm.next })
+          });
+        } catch (apiErr) {
+          console.warn('Backend password sync error:', apiErr);
+        }
+      }
+
+      setPwdForm({ current: '', next: '', confirm: '' });
+      setPwdFeedback({ error: false, text: 'Mot de passe mis à jour avec succès et chiffré en SHA-256 !' });
+      onShowToast('Mot de passe administrateur sécurisé avec succès !');
+    } catch (err) {
+      setPwdFeedback({ error: true, text: 'Erreur lors du chiffrement du mot de passe.' });
+    }
+    setPwdSaving(false);
+  };
+
   return (
+    <>
     <form onSubmit={save} className="space-y-6">
       <div className="flex items-center justify-between pb-4 border-b border-white/10">
         <div>
@@ -729,6 +795,75 @@ function AdminSettingsView({ data, onUpdateData, onShowToast }) {
         </button>
       </div>
     </form>
+
+    {/* Section Sécurité & Modification du mot de passe */}
+    <div className="admin-card mt-8 border border-sky-400/20">
+      <div className="admin-card-head flex items-center justify-between">
+        <h2>
+          <IconKey size={18} className="text-amber-400" />
+          <span>Sécurité & Mot de Passe Administrateur</span>
+        </h2>
+        <span className="text-[11px] font-mono px-2.5 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400">
+          Chiffrement SHA-256 Actif
+        </span>
+      </div>
+      <p className="text-xs text-slate-400 mb-4">
+        Mettez à jour le mot de passe d’accès à votre panneau d’administration. Le nouveau mot de passe est immédiatement salé et chiffré en SHA-256.
+      </p>
+
+      {pwdFeedback && (
+        <div className={`p-3 rounded-lg text-xs mb-4 ${pwdFeedback.error ? 'bg-rose-950/50 border border-rose-500/30 text-rose-200' : 'bg-emerald-950/50 border border-emerald-500/30 text-emerald-200'}`}>
+          {pwdFeedback.text}
+        </div>
+      )}
+
+      <form onSubmit={changePassword} className="space-y-4">
+        <div className="admin-form-grid-3">
+          <div className="admin-form-group">
+            <label>Mot de passe actuel</label>
+            <input
+              type="password"
+              required
+              className="admin-input"
+              value={pwdForm.current}
+              onChange={(e) => setPwdForm({ ...pwdForm, current: e.target.value })}
+              placeholder="••••••••••••"
+            />
+          </div>
+          <div className="admin-form-group">
+            <label>Nouveau mot de passe (min. 8 car.)</label>
+            <input
+              type="password"
+              required
+              minLength={8}
+              className="admin-input"
+              value={pwdForm.next}
+              onChange={(e) => setPwdForm({ ...pwdForm, next: e.target.value })}
+              placeholder="••••••••••••"
+            />
+          </div>
+          <div className="admin-form-group">
+            <label>Confirmer le nouveau mot de passe</label>
+            <input
+              type="password"
+              required
+              minLength={8}
+              className="admin-input"
+              value={pwdForm.confirm}
+              onChange={(e) => setPwdForm({ ...pwdForm, confirm: e.target.value })}
+              placeholder="••••••••••••"
+            />
+          </div>
+        </div>
+        <div className="flex justify-end pt-2">
+          <button type="submit" disabled={pwdSaving} className="admin-btn admin-btn-secondary text-xs flex items-center gap-2">
+            <IconKey size={14} className="text-amber-400" />
+            <span>{pwdSaving ? 'Chiffrement en cours…' : 'Mettre à jour le mot de passe'}</span>
+          </button>
+        </div>
+      </form>
+    </div>
+    </>
   );
 }
 
