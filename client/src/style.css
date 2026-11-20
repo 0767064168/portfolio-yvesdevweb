@@ -72,7 +72,8 @@
   color: #0284c7;
   background: rgba(14, 165, 233, 0.16);
 }
-:root[data-theme="light"] .btn-pro-icon {
+:root[data-theme="light"] .btn-pro-icon,
+:root[data-theme="light"] .social-icon-btn {
   color: #334155;
   background: rgba(255, 255, 255, 0.85);
   border-color: rgba(15, 23, 42, 0.15);
