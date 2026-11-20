@@ -10,8 +10,9 @@ const assetsDir = resolve(root, 'assets');
 const clientPublicAssetsDir = resolve(root, 'client', 'public', 'assets');
 const rootPublicAssetsDir = resolve(root, 'public', 'assets');
 const clientDistDir = resolve(root, 'client', 'dist');
+const clientDistAssetsDir = resolve(clientDistDir, 'assets');
 const rootDistDir = resolve(root, 'dist');
-const distAssetsDir = resolve(rootDistDir, 'assets');
+const rootDistAssetsDir = resolve(rootDistDir, 'assets');
 const defaultDataFile = resolve(root, 'client', 'src', 'defaultData.json');
 
 console.log('🔄 [1/4] Synchronisation des données par défaut pour le client...');
@@ -37,20 +38,18 @@ console.log('✅ Dossiers public synchronisés');
 console.log('📦 [3/4] Construction Vite...');
 execSync('npm run build --workspace client', { stdio: 'inherit', cwd: root });
 
-console.log('🚀 [4/4] Copie finale garantie des assets dans dist/assets et client/dist...');
+console.log('🚀 [4/4] Synchronisation vers client/dist et dist racine...');
 if (existsSync(assetsDir)) {
-  if (!existsSync(distAssetsDir)) {
-    mkdirSync(distAssetsDir, { recursive: true });
-  }
-  cpSync(assetsDir, distAssetsDir, { recursive: true });
+  if (!existsSync(clientDistAssetsDir)) mkdirSync(clientDistAssetsDir, { recursive: true });
+  cpSync(assetsDir, clientDistAssetsDir, { recursive: true });
 }
 
-if (existsSync(rootDistDir)) {
-  if (existsSync(clientDistDir)) {
-    rmSync(clientDistDir, { recursive: true, force: true });
+if (existsSync(clientDistDir)) {
+  if (existsSync(rootDistDir)) {
+    rmSync(rootDistDir, { recursive: true, force: true });
   }
-  mkdirSync(clientDistDir, { recursive: true });
-  cpSync(rootDistDir, clientDistDir, { recursive: true });
+  mkdirSync(rootDistDir, { recursive: true });
+  cpSync(clientDistDir, rootDistDir, { recursive: true });
 }
 
-console.log('🎉 Build complet terminé !');
+console.log('🎉 Build complet terminé prêt pour le déploiement.');
