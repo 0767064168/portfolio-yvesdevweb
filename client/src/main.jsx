@@ -4,7 +4,7 @@ import './style.css';
 import './site.css';
 import './admin.css';
 import defaultData from './defaultData.json';
-import { api } from './utils/api.js';
+import { api, apiBase } from './utils/api.js';
 import { Portfolio } from './components/Portfolio.jsx';
 import { ProjectDetail } from './components/ProjectDetail.jsx';
 
@@ -49,16 +49,18 @@ function App() {
   const isAdmin = location.pathname.startsWith('/admin');
 
   useEffect(() => {
-    // Attempt live data fetch from API if available
-    api('/public')
-      .then((publicData) => {
-        if (publicData && publicData.settings && Array.isArray(publicData.projects) && publicData.projects.length > 0) {
-          setData(publicData);
-        }
-      })
-      .catch(() => {});
+    // Attempt live data fetch from API if a backend is configured
+    if (apiBase) {
+      api('/public')
+        .then((publicData) => {
+          if (publicData && publicData.settings && Array.isArray(publicData.projects) && publicData.projects.length > 0) {
+            setData(publicData);
+          }
+        })
+        .catch(() => {});
+    }
 
-    if (isAdmin) {
+    if (isAdmin && apiBase) {
       Promise.allSettled([api('/admin/setup'), api('/admin/session')]).then(([setupRes, sessionRes]) => {
         if (setupRes.status === 'fulfilled' && setupRes.value) {
           setCsrfToken(setupRes.value.csrfToken || '');
@@ -71,9 +73,9 @@ function App() {
     }
   }, [isAdmin]);
 
-  // Visit analytics tracking (silently ignored on static deployments)
+  // Visit analytics tracking (active only when a live backend is configured)
   useEffect(() => {
-    if (isAdmin) return;
+    if (isAdmin || !apiBase) return;
     api('/visits', { method: 'POST', body: JSON.stringify({ path: location.pathname }) }).catch(() => {});
   }, [isAdmin]);
 

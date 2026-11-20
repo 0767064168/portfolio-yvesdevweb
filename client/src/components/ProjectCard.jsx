@@ -19,6 +19,9 @@ export function ProjectCard({ project, locale }) {
           src={asset(project.cover_image || project.image)}
           alt={title || ''}
           loading="lazy"
+          decoding="async"
+          width="600"
+          height="340"
         />
         {primaryMetric && (
           <div className="absolute top-3 right-3 bg-slate-900/85 backdrop-blur-md border border-sky-400/30 text-sky-300 text-xs font-bold px-2.5 py-1 rounded-full shadow-lg">

@@ -3,8 +3,9 @@ export const assetBase = (import.meta.env.VITE_ASSETS_BASE_URL || apiBase || '')
 
 export const apiUrl = (path) => {
   const normalized = path.startsWith('/') ? path : `/${path}`;
-  if (!apiBase) return normalized;
-  return `${apiBase}${normalized.startsWith('/api') ? normalized : `/api${normalized}`}`;
+  const withApi = normalized.startsWith('/api') ? normalized : `/api${normalized}`;
+  if (!apiBase) return withApi;
+  return `${apiBase}${withApi}`;
 };
 
 export const api = async (url, options = {}) => {

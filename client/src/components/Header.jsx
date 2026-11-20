@@ -42,6 +42,8 @@ export function Header({ settings = {}, locale, setLocale, translations = {} }) 
               alt={settings.full_name || 'Yves Yao'}
               width="144"
               height="58"
+              loading="eager"
+              decoding="async"
             />
           </picture>
         </a>

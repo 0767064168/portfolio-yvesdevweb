@@ -136,6 +136,9 @@ export function Portfolio({ data, locale, setLocale, csrfToken }) {
                   alt={text('Portrait professionnel', 'Professional portrait')}
                   width="390"
                   height="488"
+                  loading="eager"
+                  fetchPriority="high"
+                  decoding="async"
                 />
               </picture>
             </div>
