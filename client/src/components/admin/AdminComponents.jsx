@@ -36,12 +36,12 @@ import {
   IconArchive,
   IconSettings,
   IconImage,
-  IconBrandWhatsApp,
-  IconBrandLinkedIn,
-  IconBrandGitHub,
-  IconBrandTikTok,
-  IconBrandInstagram,
-  IconBrandFacebook
+  BrandBadgeLinkedIn,
+  BrandBadgeGitHub,
+  BrandBadgeTikTok,
+  BrandBadgeInstagram,
+  BrandBadgeFacebook,
+  BrandBadgeWhatsApp
 } from './AdminIcons.jsx';
 
 // Helper: load initial messages from localStorage or defaults
@@ -512,7 +512,7 @@ function AdminSettingsView({ data, onUpdateData, onShowToast }) {
           </div>
           <div className="admin-form-group">
             <label className="flex items-center gap-1.5">
-              <IconBrandWhatsApp size={14} />
+              <BrandBadgeWhatsApp size={16} />
               <span>Numéro WhatsApp</span>
             </label>
             <input
@@ -534,73 +534,194 @@ function AdminSettingsView({ data, onUpdateData, onShowToast }) {
             <span>Liens Réseaux Sociaux & Profils Web</span>
           </h2>
         </div>
-        <p className="text-xs text-slate-400 mb-4">
-          Ces liens sont affichés dans l’en-tête, le pied de page et la section contact avec leurs logos officiels.
+        <p className="text-xs text-slate-400 mb-5">
+          Renseignez vos URLs de profils officiels. Chaque réseau dispose de son logo officiel avec ses couleurs authentiques et sera affiché dans l’en-tête, le pied de page et les contacts.
         </p>
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="admin-form-group">
-            <label className="flex items-center gap-2">
-              <IconBrandLinkedIn size={16} />
-              <span>LinkedIn URL</span>
-            </label>
+          {/* LinkedIn */}
+          <div className="p-3.5 rounded-xl bg-slate-950/60 border border-white/10 hover:border-[#0A66C2]/50 transition-colors">
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center gap-2.5">
+                <BrandBadgeLinkedIn size={24} />
+                <div>
+                  <strong className="text-white text-xs block">LinkedIn</strong>
+                  <span className="text-[10px] text-slate-400">Réseau professionnel</span>
+                </div>
+              </div>
+              {form.linkedin && (
+                <a
+                  href={form.linkedin}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-[11px] text-sky-400 hover:text-sky-300 flex items-center gap-1 font-medium"
+                >
+                  <span>Tester</span>
+                  <IconExternal size={11} />
+                </a>
+              )}
+            </div>
             <input
               type="url"
-              className="admin-input"
+              className="admin-input text-xs"
               value={form.linkedin || ''}
               onChange={(e) => setForm({ ...form, linkedin: e.target.value })}
               placeholder="https://linkedin.com/in/votre-nom"
             />
           </div>
-          <div className="admin-form-group">
-            <label className="flex items-center gap-2">
-              <IconBrandGitHub size={16} />
-              <span>GitHub URL</span>
-            </label>
+
+          {/* GitHub */}
+          <div className="p-3.5 rounded-xl bg-slate-950/60 border border-white/10 hover:border-white/30 transition-colors">
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center gap-2.5">
+                <BrandBadgeGitHub size={24} />
+                <div>
+                  <strong className="text-white text-xs block">GitHub</strong>
+                  <span className="text-[10px] text-slate-400">Dépôts & Code source</span>
+                </div>
+              </div>
+              {form.github && (
+                <a
+                  href={form.github}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-[11px] text-sky-400 hover:text-sky-300 flex items-center gap-1 font-medium"
+                >
+                  <span>Tester</span>
+                  <IconExternal size={11} />
+                </a>
+              )}
+            </div>
             <input
               type="url"
-              className="admin-input"
+              className="admin-input text-xs"
               value={form.github || ''}
               onChange={(e) => setForm({ ...form, github: e.target.value })}
               placeholder="https://github.com/0767064168"
             />
           </div>
-          <div className="admin-form-group">
-            <label className="flex items-center gap-2">
-              <IconBrandTikTok size={16} />
-              <span>TikTok URL</span>
-            </label>
+
+          {/* TikTok */}
+          <div className="p-3.5 rounded-xl bg-slate-950/60 border border-white/10 hover:border-[#EE1D52]/50 transition-colors">
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center gap-2.5">
+                <BrandBadgeTikTok size={24} />
+                <div>
+                  <strong className="text-white text-xs block">TikTok</strong>
+                  <span className="text-[10px] text-slate-400">Vidéos courtes & Tech</span>
+                </div>
+              </div>
+              {form.tiktok && (
+                <a
+                  href={form.tiktok}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-[11px] text-sky-400 hover:text-sky-300 flex items-center gap-1 font-medium"
+                >
+                  <span>Tester</span>
+                  <IconExternal size={11} />
+                </a>
+              )}
+            </div>
             <input
               type="url"
-              className="admin-input"
+              className="admin-input text-xs"
               value={form.tiktok || ''}
               onChange={(e) => setForm({ ...form, tiktok: e.target.value })}
               placeholder="https://tiktok.com/@votre-compte"
             />
           </div>
-          <div className="admin-form-group">
-            <label className="flex items-center gap-2">
-              <IconBrandInstagram size={16} />
-              <span>Instagram URL</span>
-            </label>
+
+          {/* Instagram */}
+          <div className="p-3.5 rounded-xl bg-slate-950/60 border border-white/10 hover:border-[#E4405F]/50 transition-colors">
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center gap-2.5">
+                <BrandBadgeInstagram size={24} />
+                <div>
+                  <strong className="text-white text-xs block">Instagram</strong>
+                  <span className="text-[10px] text-slate-400">Photos & Stories pro</span>
+                </div>
+              </div>
+              {form.instagram && (
+                <a
+                  href={form.instagram}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-[11px] text-sky-400 hover:text-sky-300 flex items-center gap-1 font-medium"
+                >
+                  <span>Tester</span>
+                  <IconExternal size={11} />
+                </a>
+              )}
+            </div>
             <input
               type="url"
-              className="admin-input"
+              className="admin-input text-xs"
               value={form.instagram || ''}
               onChange={(e) => setForm({ ...form, instagram: e.target.value })}
               placeholder="https://instagram.com/votre-compte"
             />
           </div>
-          <div className="admin-form-group">
-            <label className="flex items-center gap-2">
-              <IconBrandFacebook size={16} />
-              <span>Facebook URL</span>
-            </label>
+
+          {/* Facebook */}
+          <div className="p-3.5 rounded-xl bg-slate-950/60 border border-white/10 hover:border-[#1877F2]/50 transition-colors">
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center gap-2.5">
+                <BrandBadgeFacebook size={24} />
+                <div>
+                  <strong className="text-white text-xs block">Facebook</strong>
+                  <span className="text-[10px] text-slate-400">Page / Profil public</span>
+                </div>
+              </div>
+              {form.facebook && (
+                <a
+                  href={form.facebook}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-[11px] text-sky-400 hover:text-sky-300 flex items-center gap-1 font-medium"
+                >
+                  <span>Tester</span>
+                  <IconExternal size={11} />
+                </a>
+              )}
+            </div>
             <input
               type="url"
-              className="admin-input"
+              className="admin-input text-xs"
               value={form.facebook || ''}
               onChange={(e) => setForm({ ...form, facebook: e.target.value })}
               placeholder="https://facebook.com/votre-page"
+            />
+          </div>
+
+          {/* WhatsApp Direct */}
+          <div className="p-3.5 rounded-xl bg-slate-950/60 border border-white/10 hover:border-[#25D366]/50 transition-colors">
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center gap-2.5">
+                <BrandBadgeWhatsApp size={24} />
+                <div>
+                  <strong className="text-white text-xs block">WhatsApp Direct</strong>
+                  <span className="text-[10px] text-slate-400">Discussion instantanée</span>
+                </div>
+              </div>
+              {form.whatsapp && (
+                <a
+                  href={`https://wa.me/${(form.whatsapp || '').replace(/[^0-9]/g, '')}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-[11px] text-emerald-400 hover:text-emerald-300 flex items-center gap-1 font-medium"
+                >
+                  <span>Tester</span>
+                  <IconExternal size={11} />
+                </a>
+              )}
+            </div>
+            <input
+              type="tel"
+              className="admin-input text-xs"
+              value={form.whatsapp || ''}
+              onChange={(e) => setForm({ ...form, whatsapp: e.target.value })}
+              placeholder="+225 07 67 06 41 68"
             />
           </div>
         </div>
