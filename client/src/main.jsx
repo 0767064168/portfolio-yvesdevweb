@@ -60,16 +60,27 @@ function App() {
         .catch(() => {});
     }
 
-    if (isAdmin && apiBase) {
-      Promise.allSettled([api('/admin/setup'), api('/admin/session')]).then(([setupRes, sessionRes]) => {
-        if (setupRes.status === 'fulfilled' && setupRes.value) {
-          setCsrfToken(setupRes.value.csrfToken || '');
-          setSetupAvailable(Boolean(setupRes.value.available));
-        }
-        if (sessionRes.status === 'fulfilled' && sessionRes.value) {
-          setAdmin(sessionRes.value.admin || null);
-        }
-      });
+    if (isAdmin) {
+      const savedAdmin = localStorage.getItem('portfolio-admin-session');
+      if (savedAdmin) {
+        try {
+          const parsed = JSON.parse(savedAdmin);
+          if (parsed && parsed.email) {
+            setAdmin(parsed);
+          }
+        } catch {}
+      }
+      if (apiBase) {
+        Promise.allSettled([api('/admin/setup'), api('/admin/session')]).then(([setupRes, sessionRes]) => {
+          if (setupRes.status === 'fulfilled' && setupRes.value) {
+            setCsrfToken(setupRes.value.csrfToken || '');
+            setSetupAvailable(Boolean(setupRes.value.available));
+          }
+          if (sessionRes.status === 'fulfilled' && sessionRes.value) {
+            setAdmin(sessionRes.value.admin || null);
+          }
+        });
+      }
     }
   }, [isAdmin]);
 

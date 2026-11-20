@@ -192,7 +192,17 @@ const mockData = {
     { id: 3, project_id: 3, image_path: 'assets/projects/demo-quincaillerie.svg', caption: 'Quincaillerie Gestion des stocks', sort_order: 1 }
   ],
   messages: [],
-  admins: [],
+  admins: [
+    {
+      id: 1,
+      name: 'Yves Yao',
+      email: 'admin@yvesyao.dev',
+      password_hash: '$2a$10$GIr4n0i4Li2hm9ICqSXbnOC9k7G3bi.5RV.Wc.g780RHwdfMZfz2C',
+      role: 'admin',
+      active: true,
+      created_at: '2026-01-01T00:00:00.000Z'
+    }
+  ],
   login_attempts: [],
   admin_activity: [],
   visits: [],
