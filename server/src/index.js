@@ -46,7 +46,7 @@ const tables = {
   skills: ['name','name_en','category','category_en','level','sort_order'],
   services: ['title','title_en','description','description_en','sort_order','active'],
   media_videos: ['title','title_en','description','description_en','video_url','poster_path','content_type','published','sort_order'],
-  settings: ['full_name','role','tagline','about_text','role_en','tagline_en','about_text_en','email','phone','location','photo','logo','linkedin','github','whatsapp'],
+  settings: ['full_name','role','tagline','about_text','role_en','tagline_en','about_text_en','email','phone','location','photo','logo','linkedin','github','facebook','instagram','tiktok','whatsapp'],
   testimonials: ['client_name','client_name_en','company','company_en','quote','quote_en','role','role_en','active','sort_order'],
   project_images: ['project_id','image_path','caption','sort_order'],
   translations: ['translation_key','locale','translation_value'],

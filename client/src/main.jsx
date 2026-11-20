@@ -42,7 +42,26 @@ function useLocale() {
 
 function App() {
   const [locale, setLocale] = useLocale();
-  const [data, setData] = useState(defaultData);
+  const [data, setData] = useState(() => {
+    try {
+      const saved = localStorage.getItem('portfolio-custom-data');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed && parsed.settings && Array.isArray(parsed.projects)) {
+          return parsed;
+        }
+      }
+    } catch (e) {}
+    return defaultData;
+  });
+
+  const handleUpdateData = (newData) => {
+    setData(newData);
+    try {
+      localStorage.setItem('portfolio-custom-data', JSON.stringify(newData));
+    } catch (e) {}
+  };
+
   const [admin, setAdmin] = useState(null);
   const [csrfToken, setCsrfToken] = useState('');
   const [setupAvailable, setSetupAvailable] = useState(false);
@@ -125,16 +144,21 @@ function App() {
 
   // Route: Admin Area (Lazy loaded)
   if (isAdmin) {
+    const route = location.pathname.replace(/^\/admin\/?/, '') || 'overview';
     return (
       <Suspense fallback={<div className="wrap section text-center py-20 text-slate-400">Chargement de l’espace admin…</div>}>
         {admin ? (
-          location.pathname === '/admin/messages' ? (
-            <LazyAdminMessages admin={admin} csrfToken={csrfToken} onLogout={() => setAdmin(null)} />
-          ) : location.pathname === '/admin/backup' ? (
-            <LazyAdminBackup admin={admin} csrfToken={csrfToken} onLogout={() => setAdmin(null)} />
-          ) : (
-            <LazyAdminPanel admin={admin} csrfToken={csrfToken} onLogout={() => setAdmin(null)} />
-          )
+          <LazyAdminPanel
+            admin={admin}
+            csrfToken={csrfToken}
+            onLogout={() => {
+              setAdmin(null);
+              localStorage.removeItem('portfolio-admin-session');
+            }}
+            initialSection={route}
+            data={data}
+            onUpdateData={handleUpdateData}
+          />
         ) : location.pathname.endsWith('/setup') && setupAvailable ? (
           <LazyAdminSetup csrfToken={csrfToken} />
         ) : (

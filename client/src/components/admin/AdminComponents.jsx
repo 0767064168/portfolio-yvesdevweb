@@ -1,8 +1,29 @@
 import React, { useState, useEffect } from 'react';
 import { api, apiUrl, asset, apiBase } from '../../utils/api.js';
 import defaultData from '../../defaultData.json';
-import { messages, navItems, fieldLabels, longFields } from '../../locales/messages.js';
+import { messages, fieldLabels } from '../../locales/messages.js';
 
+// Helper: load initial messages from localStorage or defaults
+function getStoredMessages() {
+  try {
+    const saved = localStorage.getItem('portfolio-messages');
+    if (saved) return JSON.parse(saved);
+  } catch (e) {}
+  return [
+    {
+      id: 1,
+      name: 'Client Entreprise',
+      email: 'directeur@tech-solutions.ci',
+      message: 'Bonjour Yves, nous avons un projet d’application mobile et web de gestion logistique à vous confier. Êtes-vous disponible pour un échange cette semaine ?',
+      status: 'new',
+      created_at: new Date(Date.now() - 3600000 * 4).toISOString()
+    }
+  ];
+}
+
+// --------------------------------------------------------------------------
+// 1. ADMIN LOGIN
+// --------------------------------------------------------------------------
 export function AdminLogin({ csrfToken, onLogin }) {
   const [form, setForm] = useState({ email: '', password: '' });
   const [showPassword, setShowPassword] = useState(false);
@@ -22,7 +43,6 @@ export function AdminLogin({ csrfToken, onLogin }) {
     setBusy(true);
     setError('');
 
-    // If an external backend is configured, attempt remote server login
     if (apiBase) {
       try {
         const result = await api('/admin/login', {
@@ -63,7 +83,6 @@ export function AdminLogin({ csrfToken, onLogin }) {
   return (
     <div className="auth min-h-screen flex items-center justify-center p-4 bg-[#050914] text-slate-100">
       <div className="authbox max-w-md w-full p-8 rounded-2xl bg-slate-900/90 border border-sky-400/20 shadow-2xl backdrop-blur-xl">
-        {/* Header Branding */}
         <div className="text-center mb-6">
           <a href="/" className="inline-block mb-3">
             <img
@@ -83,7 +102,6 @@ export function AdminLogin({ csrfToken, onLogin }) {
           </p>
         </div>
 
-        {/* Credentials Reminder Box */}
         <div className="mb-6 p-4 rounded-xl bg-sky-950/40 border border-sky-500/30 text-xs text-slate-300 space-y-2">
           <div className="flex items-center justify-between">
             <strong className="text-sky-300 font-semibold flex items-center gap-1.5">
@@ -181,7 +199,7 @@ export function AdminLogin({ csrfToken, onLogin }) {
 
           <p className="text-[10px] text-slate-500 flex items-center justify-center gap-1.5">
             <span>🔒</span>
-            <span>Session chiffrée SSL · Sécurité anti-bruteforce</span>
+            <span>Session sécurisée · Protection anti-bruteforce</span>
           </p>
         </div>
       </div>
@@ -189,6 +207,9 @@ export function AdminLogin({ csrfToken, onLogin }) {
   );
 }
 
+// --------------------------------------------------------------------------
+// 2. ADMIN SETUP
+// --------------------------------------------------------------------------
 export function AdminSetup({ csrfToken }) {
   const [form, setForm] = useState({ name: '', email: '', password: '' });
   const [error, setError] = useState('');
@@ -269,153 +290,838 @@ export function AdminSetup({ csrfToken }) {
   );
 }
 
-export function AdminFrame({ section, csrfToken, onLogout, children }) {
-  const logout = async () => {
-    localStorage.removeItem('portfolio-admin-session');
+// --------------------------------------------------------------------------
+// 3. ADMIN PROFILE / SETTINGS EDITOR
+// --------------------------------------------------------------------------
+function AdminSettingsView({ data, onUpdateData, onShowToast }) {
+  const [form, setForm] = useState(data.settings || {});
+  const [saving, setSaving] = useState(false);
+
+  const save = async (e) => {
+    e.preventDefault();
+    setSaving(true);
+
     if (apiBase) {
       try {
-        await api('/admin/logout', { method: 'POST', headers: { 'x-csrf-token': csrfToken } });
-      } catch (e) {
-        console.error('Logout error:', e);
+        await api('/admin/resources/settings/1', {
+          method: 'PUT',
+          body: JSON.stringify(form)
+        });
+      } catch (err) {
+        console.error('Remote save error:', err);
       }
     }
-    onLogout();
+
+    const updatedData = { ...data, settings: form };
+    onUpdateData(updatedData);
+    setSaving(false);
+    onShowToast('✅ Profil et réseaux sociaux enregistrés avec succès !');
   };
 
   return (
-    <div className="admin-shell">
-      <aside className="sidebar">
-        <a className="adminbrand" href="/">
-          <span className="mark">
-            <img src="/assets/logo-yy.png" alt="YY" />
-          </span>
-          <span>
-            Portfolio<br />
-            <small>Administration</small>
-          </span>
-        </a>
-        <nav>
-          {navItems.map((item) => (
-            <a
-              key={item}
-              className={section === item || (section === 'admin_activity' && item === 'activity') ? 'is-active' : ''}
-              href={item === 'overview' ? '/admin' : `/admin/${item}`}
-            >
-              {messages[item] || item}
-            </a>
-          ))}
-        </nav>
-        <div className="mt-auto pt-4 border-t border-white/10 space-y-2">
-          <a
-            href="/"
-            className="text-xs text-slate-400 hover:text-white flex items-center gap-1.5 px-3 py-2 rounded-lg transition-colors"
-          >
-            <span>←</span>
-            <span>Voir le site public</span>
-          </a>
-          <button className="btn-pro-admin-danger logout w-full justify-start" onClick={logout}>
-            Déconnexion ↗
-          </button>
+    <form onSubmit={save} className="space-y-6">
+      <div className="flex items-center justify-between pb-4 border-b border-white/10">
+        <div>
+          <h2 className="text-lg font-bold text-white flex items-center gap-2">
+            <span>👤</span> Profil Professionnel & Coordonnées
+          </h2>
+          <p className="text-xs text-slate-400">
+            Modifiez vos informations personnelles, bio, coordonnées directes et liens réseaux sociaux.
+          </p>
         </div>
-      </aside>
-      <main className="adminmain">{children}</main>
+        <button type="submit" disabled={saving} className="admin-btn admin-btn-primary">
+          {saving ? 'Enregistrement…' : '💾 Enregistrer les modifications'}
+        </button>
+      </div>
+
+      {/* Identité & Rôles */}
+      <div className="admin-card">
+        <div className="admin-card-head">
+          <h2><span>🏷️</span> Identité & Titres</h2>
+        </div>
+        <div className="admin-form-grid-2">
+          <div className="admin-form-group">
+            <label>Nom complet</label>
+            <input
+              className="admin-input"
+              value={form.full_name || ''}
+              onChange={(e) => setForm({ ...form, full_name: e.target.value })}
+              required
+            />
+          </div>
+          <div className="admin-form-group">
+            <label>Localisation</label>
+            <input
+              className="admin-input"
+              value={form.location || ''}
+              onChange={(e) => setForm({ ...form, location: e.target.value })}
+              placeholder="Abidjan, Côte d’Ivoire"
+            />
+          </div>
+          <div className="admin-form-group">
+            <label>Rôle (Français)</label>
+            <input
+              className="admin-input"
+              value={form.role || ''}
+              onChange={(e) => setForm({ ...form, role: e.target.value })}
+              required
+            />
+          </div>
+          <div className="admin-form-group">
+            <label>Rôle (Anglais)</label>
+            <input
+              className="admin-input"
+              value={form.role_en || ''}
+              onChange={(e) => setForm({ ...form, role_en: e.target.value })}
+            />
+          </div>
+          <div className="admin-form-group">
+            <label>Accroche / Tagline (Français)</label>
+            <input
+              className="admin-input"
+              value={form.tagline || ''}
+              onChange={(e) => setForm({ ...form, tagline: e.target.value })}
+            />
+          </div>
+          <div className="admin-form-group">
+            <label>Accroche / Tagline (Anglais)</label>
+            <input
+              className="admin-input"
+              value={form.tagline_en || ''}
+              onChange={(e) => setForm({ ...form, tagline_en: e.target.value })}
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* Biographie & Présentation */}
+      <div className="admin-card">
+        <div className="admin-card-head">
+          <h2><span>📝</span> Biographie & Présentation (À propos)</h2>
+        </div>
+        <div className="admin-form-grid-2">
+          <div className="admin-form-group">
+            <label>À propos (Français)</label>
+            <textarea
+              className="admin-textarea"
+              rows="4"
+              value={form.about_text || ''}
+              onChange={(e) => setForm({ ...form, about_text: e.target.value })}
+            />
+          </div>
+          <div className="admin-form-group">
+            <label>À propos (Anglais)</label>
+            <textarea
+              className="admin-textarea"
+              rows="4"
+              value={form.about_text_en || ''}
+              onChange={(e) => setForm({ ...form, about_text_en: e.target.value })}
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* Coordonnées de contact */}
+      <div className="admin-card">
+        <div className="admin-card-head">
+          <h2><span>📞</span> Coordonnées Directes</h2>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="admin-form-group">
+            <label>Email de contact</label>
+            <input
+              type="email"
+              className="admin-input"
+              value={form.email || ''}
+              onChange={(e) => setForm({ ...form, email: e.target.value })}
+              required
+            />
+          </div>
+          <div className="admin-form-group">
+            <label>Téléphone direct</label>
+            <input
+              type="tel"
+              className="admin-input"
+              value={form.phone || ''}
+              onChange={(e) => setForm({ ...form, phone: e.target.value })}
+              placeholder="+225 07 67 06 41 68"
+            />
+          </div>
+          <div className="admin-form-group">
+            <label>Numéro WhatsApp</label>
+            <input
+              type="tel"
+              className="admin-input"
+              value={form.whatsapp || ''}
+              onChange={(e) => setForm({ ...form, whatsapp: e.target.value })}
+              placeholder="+225 07 67 06 41 68"
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* Réseaux Sociaux & Liens */}
+      <div className="admin-card">
+        <div className="admin-card-head">
+          <h2><span>🌐</span> Liens Réseaux Sociaux & Profils Web</h2>
+        </div>
+        <p className="text-xs text-slate-400 mb-4">
+          Ces liens sont affichés dans l’en-tête, le pied de page et la section contact avec leurs logos officiels.
+        </p>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="admin-form-group">
+            <label className="flex items-center gap-2">
+              <span>💼</span> LinkedIn URL
+            </label>
+            <input
+              type="url"
+              className="admin-input"
+              value={form.linkedin || ''}
+              onChange={(e) => setForm({ ...form, linkedin: e.target.value })}
+              placeholder="https://linkedin.com/in/votre-nom"
+            />
+          </div>
+          <div className="admin-form-group">
+            <label className="flex items-center gap-2">
+              <span>🐙</span> GitHub URL
+            </label>
+            <input
+              type="url"
+              className="admin-input"
+              value={form.github || ''}
+              onChange={(e) => setForm({ ...form, github: e.target.value })}
+              placeholder="https://github.com/0767064168"
+            />
+          </div>
+          <div className="admin-form-group">
+            <label className="flex items-center gap-2">
+              <span>🎵</span> TikTok URL
+            </label>
+            <input
+              type="url"
+              className="admin-input"
+              value={form.tiktok || ''}
+              onChange={(e) => setForm({ ...form, tiktok: e.target.value })}
+              placeholder="https://tiktok.com/@votre-compte"
+            />
+          </div>
+          <div className="admin-form-group">
+            <label className="flex items-center gap-2">
+              <span>📸</span> Instagram URL
+            </label>
+            <input
+              type="url"
+              className="admin-input"
+              value={form.instagram || ''}
+              onChange={(e) => setForm({ ...form, instagram: e.target.value })}
+              placeholder="https://instagram.com/votre-compte"
+            />
+          </div>
+          <div className="admin-form-group">
+            <label className="flex items-center gap-2">
+              <span>👥</span> Facebook URL
+            </label>
+            <input
+              type="url"
+              className="admin-input"
+              value={form.facebook || ''}
+              onChange={(e) => setForm({ ...form, facebook: e.target.value })}
+              placeholder="https://facebook.com/votre-page"
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* Médias & Visuels */}
+      <div className="admin-card">
+        <div className="admin-card-head">
+          <h2><span>🖼️</span> Médias & Branding</h2>
+        </div>
+        <div className="admin-form-grid-2">
+          <div className="admin-form-group">
+            <label>Chemin de la photo de portrait</label>
+            <input
+              className="admin-input"
+              value={form.photo || ''}
+              onChange={(e) => setForm({ ...form, photo: e.target.value })}
+              placeholder="assets/portrait.jpg"
+            />
+          </div>
+          <div className="admin-form-group">
+            <label>Chemin du Logo</label>
+            <input
+              className="admin-input"
+              value={form.logo || ''}
+              onChange={(e) => setForm({ ...form, logo: e.target.value })}
+              placeholder="assets/logo-yy.png"
+            />
+          </div>
+        </div>
+      </div>
+
+      <div className="flex justify-end pt-4">
+        <button type="submit" disabled={saving} className="admin-btn admin-btn-primary px-8 py-3 text-sm">
+          {saving ? 'Enregistrement…' : '💾 Enregistrer les modifications'}
+        </button>
+      </div>
+    </form>
+  );
+}
+
+// --------------------------------------------------------------------------
+// 4. ADMIN PROJECTS LIST & MODAL FORM
+// --------------------------------------------------------------------------
+function AdminProjectsView({ data, onUpdateData, onShowToast }) {
+  const [projects, setProjects] = useState(data.projects || []);
+  const [filter, setFilter] = useState('all');
+  const [search, setSearch] = useState('');
+  const [editingProject, setEditingProject] = useState(null);
+
+  const categories = ['all', ...new Set(projects.map((p) => p.category).filter(Boolean))];
+
+  const filtered = projects.filter((p) => {
+    const matchCat = filter === 'all' || p.category === filter;
+    const matchSearch =
+      !search ||
+      p.title?.toLowerCase().includes(search.toLowerCase()) ||
+      p.technologies?.toLowerCase().includes(search.toLowerCase()) ||
+      p.description?.toLowerCase().includes(search.toLowerCase());
+    return matchCat && matchSearch;
+  });
+
+  const saveProject = (proj) => {
+    let updated;
+    if (proj.id) {
+      updated = projects.map((p) => (p.id === proj.id ? proj : p));
+    } else {
+      const newProj = { ...proj, id: Date.now() };
+      updated = [newProj, ...projects];
+    }
+    setProjects(updated);
+    onUpdateData({ ...data, projects: updated });
+    setEditingProject(null);
+    onShowToast('✅ Projet enregistré avec succès !');
+  };
+
+  const deleteProject = (id) => {
+    if (!confirm('Supprimer définitivement ce projet ?')) return;
+    const updated = projects.filter((p) => p.id !== id);
+    setProjects(updated);
+    onUpdateData({ ...data, projects: updated });
+    onShowToast('🗑️ Projet supprimé.');
+  };
+
+  return (
+    <div className="space-y-6">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-4 border-b border-white/10">
+        <div>
+          <h2 className="text-lg font-bold text-white flex items-center gap-2">
+            <span>💼</span> Projets & Études de Cas ({projects.length})
+          </h2>
+          <p className="text-xs text-slate-400">
+            Gérez vos réalisations, les technologies utilisées et le détail des études de cas (Challenge, Solution, Impact).
+          </p>
+        </div>
+        <button
+          onClick={() =>
+            setEditingProject({
+              title: '',
+              title_en: '',
+              category: 'Web App',
+              category_en: 'Web App',
+              technologies: '',
+              description: '',
+              description_en: '',
+              challenge: '',
+              challenge_en: '',
+              solution: '',
+              solution_en: '',
+              impact: '',
+              impact_en: '',
+              project_url: '',
+              github_url: '',
+              image: 'assets/projects/demo-pointage-rh.svg',
+              featured: 1,
+              sort_order: projects.length + 1
+            })
+          }
+          className="admin-btn admin-btn-primary"
+        >
+          <span>+ Nouveau Projet</span>
+        </button>
+      </div>
+
+      {/* Filters & Search */}
+      <div className="flex flex-col sm:flex-row gap-3">
+        <input
+          type="text"
+          placeholder="Rechercher par titre, stack ou mot-clé…"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="admin-input flex-1"
+        />
+        <div className="flex flex-wrap gap-1.5">
+          {categories.map((c) => (
+            <button
+              key={c}
+              onClick={() => setFilter(c)}
+              className={`text-xs px-3 py-1.5 rounded-lg border transition-colors ${
+                filter === c
+                  ? 'bg-sky-500/20 text-sky-300 border-sky-400/40 font-semibold'
+                  : 'bg-white/5 text-slate-400 border-white/10 hover:text-white'
+              }`}
+            >
+              {c === 'all' ? 'Tous' : c}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Projects Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {filtered.map((proj) => (
+          <div key={proj.id} className="admin-card hover:border-sky-400/30 transition-all flex flex-col justify-between">
+            <div>
+              <div className="flex items-start justify-between gap-3 mb-2">
+                <div>
+                  <span className="text-[11px] font-mono text-sky-400 font-semibold uppercase tracking-wider block">
+                    {proj.category}
+                  </span>
+                  <h3 className="text-base font-bold text-white mt-0.5">{proj.title}</h3>
+                </div>
+                {proj.featured ? (
+                  <span className="admin-badge admin-badge-amber">⭐ En vedette</span>
+                ) : null}
+              </div>
+
+              <p className="text-xs text-slate-400 line-clamp-2 mb-3">
+                {proj.description || 'Aucune description'}
+              </p>
+
+              {proj.technologies && (
+                <div className="flex flex-wrap gap-1 mb-4">
+                  {proj.technologies.split(',').map((tech, i) => (
+                    <span key={i} className="text-[10px] px-2 py-0.5 rounded bg-white/5 border border-white/10 text-slate-300">
+                      {tech.trim()}
+                    </span>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <div className="pt-3 border-t border-white/10 flex items-center justify-between text-xs">
+              <a
+                href={`/projects/${proj.id}`}
+                target="_blank"
+                rel="noreferrer"
+                className="text-sky-400 hover:text-sky-300 flex items-center gap-1 font-medium"
+              >
+                <span>Fiche publique</span>
+                <span>↗</span>
+              </a>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => setEditingProject(proj)}
+                  className="admin-btn admin-btn-secondary py-1 px-2.5 text-xs"
+                >
+                  ✏️ Modifier
+                </button>
+                <button
+                  onClick={() => deleteProject(proj.id)}
+                  className="admin-btn admin-btn-danger py-1 px-2.5 text-xs"
+                >
+                  🗑️
+                </button>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Modal Project Form */}
+      {editingProject && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm overflow-y-auto">
+          <div className="bg-[#0b1526] border border-sky-400/30 rounded-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto p-6 shadow-2xl">
+            <div className="flex items-center justify-between pb-4 border-b border-white/10 mb-6">
+              <h3 className="text-lg font-bold text-white">
+                {editingProject.id ? 'Modifier le projet' : 'Nouveau Projet'}
+              </h3>
+              <button
+                onClick={() => setEditingProject(null)}
+                className="text-slate-400 hover:text-white text-xl p-1"
+              >
+                ✕
+              </button>
+            </div>
+
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                saveProject(editingProject);
+              }}
+              className="space-y-4 text-xs"
+            >
+              <div className="admin-form-grid-2">
+                <div className="admin-form-group">
+                  <label>Titre (Français)</label>
+                  <input
+                    className="admin-input"
+                    required
+                    value={editingProject.title || ''}
+                    onChange={(e) => setEditingProject({ ...editingProject, title: e.target.value })}
+                  />
+                </div>
+                <div className="admin-form-group">
+                  <label>Titre (Anglais)</label>
+                  <input
+                    className="admin-input"
+                    value={editingProject.title_en || ''}
+                    onChange={(e) => setEditingProject({ ...editingProject, title_en: e.target.value })}
+                  />
+                </div>
+                <div className="admin-form-group">
+                  <label>Catégorie (Français)</label>
+                  <input
+                    className="admin-input"
+                    required
+                    value={editingProject.category || ''}
+                    onChange={(e) => setEditingProject({ ...editingProject, category: e.target.value })}
+                  />
+                </div>
+                <div className="admin-form-group">
+                  <label>Catégorie (Anglais)</label>
+                  <input
+                    className="admin-input"
+                    value={editingProject.category_en || ''}
+                    onChange={(e) => setEditingProject({ ...editingProject, category_en: e.target.value })}
+                  />
+                </div>
+              </div>
+
+              <div className="admin-form-group">
+                <label>Stack Technologies (séparées par virgules)</label>
+                <input
+                  className="admin-input"
+                  placeholder="React, Node.js, Express, PostgreSQL, Tailwind"
+                  value={editingProject.technologies || ''}
+                  onChange={(e) => setEditingProject({ ...editingProject, technologies: e.target.value })}
+                />
+              </div>
+
+              <div className="admin-form-grid-2">
+                <div className="admin-form-group">
+                  <label>Description (Français)</label>
+                  <textarea
+                    rows="3"
+                    className="admin-textarea"
+                    value={editingProject.description || ''}
+                    onChange={(e) => setEditingProject({ ...editingProject, description: e.target.value })}
+                  />
+                </div>
+                <div className="admin-form-group">
+                  <label>Description (Anglais)</label>
+                  <textarea
+                    rows="3"
+                    className="admin-textarea"
+                    value={editingProject.description_en || ''}
+                    onChange={(e) => setEditingProject({ ...editingProject, description_en: e.target.value })}
+                  />
+                </div>
+              </div>
+
+              {/* Étude de cas (Challenge, Solution, Impact) */}
+              <div className="p-4 rounded-xl bg-black/30 border border-white/5 space-y-3">
+                <span className="font-semibold text-sky-400 block text-xs uppercase tracking-wider">
+                  Étude de cas détaillée (Case Study)
+                </span>
+                <div className="admin-form-grid-2">
+                  <div className="admin-form-group">
+                    <label>Le Défi / Challenge (FR)</label>
+                    <textarea
+                      rows="2"
+                      className="admin-textarea"
+                      value={editingProject.challenge || ''}
+                      onChange={(e) => setEditingProject({ ...editingProject, challenge: e.target.value })}
+                    />
+                  </div>
+                  <div className="admin-form-group">
+                    <label>Le Défi / Challenge (EN)</label>
+                    <textarea
+                      rows="2"
+                      className="admin-textarea"
+                      value={editingProject.challenge_en || ''}
+                      onChange={(e) => setEditingProject({ ...editingProject, challenge_en: e.target.value })}
+                    />
+                  </div>
+                  <div className="admin-form-group">
+                    <label>Solution Technique (FR)</label>
+                    <textarea
+                      rows="2"
+                      className="admin-textarea"
+                      value={editingProject.solution || ''}
+                      onChange={(e) => setEditingProject({ ...editingProject, solution: e.target.value })}
+                    />
+                  </div>
+                  <div className="admin-form-group">
+                    <label>Solution Technique (EN)</label>
+                    <textarea
+                      rows="2"
+                      className="admin-textarea"
+                      value={editingProject.solution_en || ''}
+                      onChange={(e) => setEditingProject({ ...editingProject, solution_en: e.target.value })}
+                    />
+                  </div>
+                  <div className="admin-form-group">
+                    <label>Impact Métier & ROI (FR)</label>
+                    <textarea
+                      rows="2"
+                      className="admin-textarea"
+                      value={editingProject.impact || ''}
+                      onChange={(e) => setEditingProject({ ...editingProject, impact: e.target.value })}
+                    />
+                  </div>
+                  <div className="admin-form-group">
+                    <label>Impact Métier & ROI (EN)</label>
+                    <textarea
+                      rows="2"
+                      className="admin-textarea"
+                      value={editingProject.impact_en || ''}
+                      onChange={(e) => setEditingProject({ ...editingProject, impact_en: e.target.value })}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Liens & Médias */}
+              <div className="admin-form-grid-2">
+                <div className="admin-form-group">
+                  <label>Lien du Projet / Démo</label>
+                  <input
+                    type="url"
+                    className="admin-input"
+                    value={editingProject.project_url || ''}
+                    onChange={(e) => setEditingProject({ ...editingProject, project_url: e.target.value })}
+                  />
+                </div>
+                <div className="admin-form-group">
+                  <label>Lien GitHub (Code source)</label>
+                  <input
+                    type="url"
+                    className="admin-input"
+                    value={editingProject.github_url || ''}
+                    onChange={(e) => setEditingProject({ ...editingProject, github_url: e.target.value })}
+                  />
+                </div>
+                <div className="admin-form-group">
+                  <label>Chemin de l'image / maquette</label>
+                  <input
+                    className="admin-input"
+                    value={editingProject.image || ''}
+                    onChange={(e) => setEditingProject({ ...editingProject, image: e.target.value })}
+                  />
+                </div>
+                <div className="admin-form-group flex items-center gap-4 pt-6">
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={Boolean(editingProject.featured)}
+                      onChange={(e) => setEditingProject({ ...editingProject, featured: e.target.checked ? 1 : 0 })}
+                    />
+                    <span className="text-white font-medium">Mettre en vedette ⭐</span>
+                  </label>
+                </div>
+              </div>
+
+              <div className="flex justify-end gap-3 pt-4 border-t border-white/10">
+                <button
+                  type="button"
+                  onClick={() => setEditingProject(null)}
+                  className="admin-btn admin-btn-secondary"
+                >
+                  Annuler
+                </button>
+                <button type="submit" className="admin-btn admin-btn-primary">
+                  Enregistrer le projet
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
 
+// --------------------------------------------------------------------------
+// 5. ADMIN MESSAGES INBOX
+// --------------------------------------------------------------------------
 export function AdminMessages({ csrfToken, onLogout }) {
-  const [rows, setRows] = useState([]);
-  const [error, setError] = useState('');
+  const [messagesList, setMessagesList] = useState(getStoredMessages);
+  const [filter, setFilter] = useState('all');
+  const [toast, setToast] = useState('');
 
-  const load = async () => {
-    if (apiBase) {
-      try {
-        setRows((await api('/admin/resources/messages')).rows || []);
-      } catch (e) {
-        setError(e.message);
-      }
-    } else {
-      setRows([]);
-    }
+  const showToast = (txt) => {
+    setToast(txt);
+    setTimeout(() => setToast(''), 3000);
   };
 
-  useEffect(() => { load(); }, []);
-
-  const updateStatus = async (row, status) => {
-    if (!apiBase) return;
-    try {
-      await api(`/admin/resources/messages/${row.id}`, {
-        method: 'PUT',
-        headers: { 'x-csrf-token': csrfToken },
-        body: JSON.stringify({ status })
-      });
-      load();
-    } catch (e) {
-      setError(e.message);
-    }
+  const updateStatus = (id, newStatus) => {
+    const updated = messagesList.map((m) => (m.id === id ? { ...m, status: newStatus } : m));
+    setMessagesList(updated);
+    localStorage.setItem('portfolio-messages', JSON.stringify(updated));
+    showToast(`Statut mis à jour : ${newStatus}`);
   };
 
-  const remove = async (row) => {
-    if (!confirm('Supprimer définitivement ce message ?')) return;
-    if (!apiBase) {
-      setRows(rows.filter((r) => r.id !== row.id));
-      return;
-    }
-    try {
-      await api(`/admin/resources/messages/${row.id}`, {
-        method: 'DELETE',
-        headers: { 'x-csrf-token': csrfToken }
-      });
-      load();
-    } catch (e) {
-      setError(e.message);
-    }
+  const removeMessage = (id) => {
+    if (!confirm('Supprimer ce message ?')) return;
+    const updated = messagesList.filter((m) => m.id !== id);
+    setMessagesList(updated);
+    localStorage.setItem('portfolio-messages', JSON.stringify(updated));
+    showToast('Message supprimé.');
   };
+
+  const addTestMessage = () => {
+    const sample = {
+      id: Date.now(),
+      name: 'Nouveau Prospect',
+      email: 'contact@prospect-startup.com',
+      message: 'Bonjour Yves, nous avons vu votre portfolio et nous souhaitons moderniser notre application web React/Node.js. Pouvez-vous nous contacter ?',
+      status: 'new',
+      created_at: new Date().toISOString()
+    };
+    const updated = [sample, ...messagesList];
+    setMessagesList(updated);
+    localStorage.setItem('portfolio-messages', JSON.stringify(updated));
+    showToast('Message de test ajouté !');
+  };
+
+  const filtered = messagesList.filter((m) => {
+    if (filter === 'all') return true;
+    return m.status === filter;
+  });
 
   return (
-    <AdminFrame csrfToken={csrfToken} section="messages" onLogout={onLogout}>
-      <div className="topbar">
-        <h1>Messages reçus</h1>
-        <span>
-          {rows.length} message(s)
-        </span>
+    <div className="space-y-6">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-4 border-b border-white/10">
+        <div>
+          <h2 className="text-lg font-bold text-white flex items-center gap-2">
+            <span>💬</span> Boîte de réception ({messagesList.length})
+          </h2>
+          <p className="text-xs text-slate-400">
+            Messages reçus via le formulaire de contact public de votre portfolio.
+          </p>
+        </div>
+        <button onClick={addTestMessage} className="admin-btn admin-btn-secondary text-xs">
+          <span>+ Simuler un message de test</span>
+        </button>
       </div>
-      {error && <div className="alert err">{error}</div>}
-      <section className="panel">
-        {rows.length ? (
-          rows.map((row) => (
-            <article className="message-item" key={row.id}>
-              <span className="message-avatar">{row.name[0]}</span>
-              <span className="message-content">
-                <strong>{row.name} · {row.status}</strong>
-                <a href={`mailto:${encodeURIComponent(row.email)}`}>{row.email}</a>
-                <small>{row.message}</small>
-                <time>{new Date(row.created_at).toLocaleString()}</time>
-              </span>
-              <span className="row-actions">
-                <button className="btn-pro-admin-secondary" onClick={() => updateStatus(row, 'read')}>
-                  Lu
-                </button>
-                <button className="btn-pro-admin-secondary" onClick={() => updateStatus(row, 'archived')}>
-                  Archiver
-                </button>
-                <button className="btn-pro-admin-danger" onClick={() => remove(row)}>
-                  Supprimer
-                </button>
-              </span>
-            </article>
-          ))
-        ) : (
-          <p className="empty-state">Aucun message pour le moment.</p>
-        )}
-      </section>
-    </AdminFrame>
+
+      {toast && <div className="admin-toast">{toast}</div>}
+
+      <div className="flex gap-2">
+        {['all', 'new', 'read', 'archived'].map((st) => (
+          <button
+            key={st}
+            onClick={() => setFilter(st)}
+            className={`text-xs px-3 py-1.5 rounded-lg border transition-colors ${
+              filter === st
+                ? 'bg-sky-500/20 text-sky-300 border-sky-400/40 font-semibold'
+                : 'bg-white/5 text-slate-400 border-white/10 hover:text-white'
+            }`}
+          >
+            {st === 'all' ? 'Tous' : st === 'new' ? 'Nouveaux' : st === 'read' ? 'Lus' : 'Archivés'}
+          </button>
+        ))}
+      </div>
+
+      {filtered.length === 0 ? (
+        <div className="admin-card text-center py-12 text-slate-400 text-sm">
+          Aucun message dans cette catégorie.
+        </div>
+      ) : (
+        <div className="space-y-3">
+          {filtered.map((msg) => (
+            <div key={msg.id} className="admin-card hover:border-sky-400/30 transition-all">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3">
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-full bg-gradient-to-br from-sky-500 to-indigo-600 flex items-center justify-center font-bold text-white text-sm">
+                    {msg.name ? msg.name[0].toUpperCase() : 'M'}
+                  </div>
+                  <div>
+                    <strong className="text-white text-sm block">{msg.name}</strong>
+                    <a href={`mailto:${msg.email}`} className="text-xs text-sky-400 hover:underline">
+                      {msg.email}
+                    </a>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span
+                    className={`admin-badge ${
+                      msg.status === 'new'
+                        ? 'admin-badge-green'
+                        : msg.status === 'archived'
+                        ? 'admin-badge-slate'
+                        : 'admin-badge-blue'
+                    }`}
+                  >
+                    {msg.status === 'new' ? '🟢 Nouveau' : msg.status === 'archived' ? '📦 Archivé' : '✓ Lu'}
+                  </span>
+                  <span className="text-[11px] text-slate-500">
+                    {new Date(msg.created_at).toLocaleString()}
+                  </span>
+                </div>
+              </div>
+
+              <div className="p-3 rounded-lg bg-black/30 border border-white/5 text-sm text-slate-200 mb-4 whitespace-pre-wrap">
+                {msg.message}
+              </div>
+
+              <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-white/5 text-xs">
+                <a
+                  href={`mailto:${msg.email}?subject=Re:%20Votre%20projet%20-%20Yves%20Yao`}
+                  className="admin-btn admin-btn-primary py-1 px-3 text-xs"
+                >
+                  <span>✉️ Répondre par email</span>
+                </a>
+                <div className="flex items-center gap-2">
+                  {msg.status !== 'read' && (
+                    <button
+                      onClick={() => updateStatus(msg.id, 'read')}
+                      className="admin-btn admin-btn-secondary py-1 px-2.5 text-xs"
+                    >
+                      Marquer comme lu
+                    </button>
+                  )}
+                  {msg.status !== 'archived' && (
+                    <button
+                      onClick={() => updateStatus(msg.id, 'archived')}
+                      className="admin-btn admin-btn-secondary py-1 px-2.5 text-xs"
+                    >
+                      Archiver
+                    </button>
+                  )}
+                  <button
+                    onClick={() => removeMessage(msg.id)}
+                    className="admin-btn admin-btn-danger py-1 px-2.5 text-xs"
+                  >
+                    Supprimer
+                  </button>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
   );
 }
 
-export function AdminBackup({ admin, csrfToken, onLogout }) {
-  const downloadClientBackup = () => {
-    const jsonStr = JSON.stringify(defaultData, null, 2);
+// --------------------------------------------------------------------------
+// 6. ADMIN BACKUP & RESTORE
+// --------------------------------------------------------------------------
+export function AdminBackup({ admin, csrfToken, onLogout, data, onUpdateData, onShowToast }) {
+  const downloadBackup = () => {
+    const jsonStr = JSON.stringify(data || defaultData, null, 2);
     const blob = new Blob([jsonStr], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -423,369 +1129,596 @@ export function AdminBackup({ admin, csrfToken, onLogout }) {
     a.download = `portfolio-backup-${new Date().toISOString().split('T')[0]}.json`;
     a.click();
     URL.revokeObjectURL(url);
+    if (onShowToast) onShowToast('📥 Fichier de sauvegarde JSON téléchargé !');
   };
 
-  return (
-    <AdminFrame csrfToken={csrfToken} section="backup" onLogout={onLogout}>
-      <section className="panel">
-        <h1>Sauvegarde des données</h1>
-        <p className="mb-6">
-          Téléchargez l’intégralité des données du portfolio (projets, compétences, services, médias, témoignages et traductions) au format JSON standard.
-        </p>
-        <div className="flex flex-col gap-3 max-w-md">
-          <button className="btn-pro-primary text-left" onClick={downloadClientBackup}>
-            Télécharger la sauvegarde complète (JSON) ↗
-          </button>
-          {apiBase && (
-            <a className="btn-pro-admin-secondary" href={apiUrl('/admin/export/messages')}>
-              Exporter les messages (CSV) ↗
-            </a>
-          )}
-        </div>
-      </section>
-    </AdminFrame>
-  );
-}
+  const copyJsonToClipboard = () => {
+    const jsonStr = JSON.stringify(data || defaultData, null, 2);
+    navigator.clipboard.writeText(jsonStr);
+    if (onShowToast) onShowToast('📋 Données JSON copiées dans le presse-papier !');
+  };
 
-export function AdminForm({ table, fields, row, csrfToken, onClose, onSaved }) {
-  const [values, setValues] = useState(row || {});
-  const [error, setError] = useState('');
-  const [busy, setBusy] = useState(false);
-
-  const save = async (e) => {
-    e.preventDefault();
-    setBusy(true);
-    setError('');
-
-    if (apiBase) {
+  const handleFileUpload = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (event) => {
       try {
-        const method = row ? 'PUT' : 'POST';
-        await api(`/admin/resources/${table}${row ? `/${row.id}` : ''}`, {
-          method,
-          headers: { 'x-csrf-token': csrfToken },
-          body: JSON.stringify(values)
-        });
-        onSaved();
-      } catch (ex) {
-        setError(ex.message);
-      } finally {
-        setBusy(false);
+        const parsed = JSON.parse(event.target.result);
+        if (parsed && parsed.settings && Array.isArray(parsed.projects)) {
+          onUpdateData(parsed);
+          if (onShowToast) onShowToast('✅ Sauvegarde restaurée avec succès !');
+        } else {
+          alert('Format de fichier JSON invalide. Le fichier doit contenir les clés "settings" et "projects".');
+        }
+      } catch (err) {
+        alert('Erreur lors de la lecture du fichier JSON : ' + err.message);
       }
-    } else {
-      // In local mode, inform user
-      alert('Modification enregistrée localement.');
-      setBusy(false);
-      onSaved();
-    }
+    };
+    reader.readAsText(file);
   };
 
-  const uploadField = async (field, file) => {
-    if (!apiBase) {
-      alert('Upload de fichier actif lorsque le serveur est connecté.');
-      return;
-    }
-    const kind = table === 'media_videos' ? 'video' : field === 'photo' ? 'photo' : field === 'poster_path' ? 'poster' : 'image';
-    const data = new FormData();
-    data.append('file', file);
-    try {
-      const result = await api(`/admin/upload/${kind}`, {
-        method: 'POST',
-        headers: { 'x-csrf-token': csrfToken },
-        body: data
-      });
-      setValues({ ...values, [field]: result.path });
-    } catch (ex) {
-      setError(ex.message);
-    }
+  const resetToFactory = () => {
+    if (!confirm('Attention : réinitialiser toutes les données aux valeurs par défaut de démonstration ?')) return;
+    onUpdateData(defaultData);
+    localStorage.removeItem('portfolio-custom-data');
+    if (onShowToast) onShowToast('🔄 Données réinitialisées aux valeurs par défaut.');
   };
-
-  const editable = fields.filter((f) => !['password_hash', 'id', 'created_at', 'updated_at'].includes(f));
-  if (table === 'admins') editable.push('password');
 
   return (
-    <div className="modal-backdrop" onClick={onClose}>
-      <form className="modal admin-form" onClick={(e) => e.stopPropagation()} onSubmit={save}>
-        <div className="panelhead">
-          <h2>{row ? 'Modifier' : 'Ajouter'} — {messages[table] || table}</h2>
-          <button className="btn-pro-icon text-lg" type="button" onClick={onClose}>×</button>
+    <div className="space-y-6">
+      <div className="pb-4 border-b border-white/10">
+        <h2 className="text-lg font-bold text-white flex items-center gap-2">
+          <span>💾</span> Sauvegarde, Export & Restauration
+        </h2>
+        <p className="text-xs text-slate-400">
+          Exportez et importez l’ensemble des données de votre portfolio (projets, compétences, profils, services).
+        </p>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="admin-card space-y-4">
+          <div className="admin-card-head">
+            <h2><span>📤</span> Exporter les données</h2>
+          </div>
+          <p className="text-xs text-slate-400">
+            Téléchargez un snapshot complet de toutes vos modifications au format JSON. Idéal pour conserver une copie ou synchroniser avec le dépôt GitHub.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-3 pt-2">
+            <button onClick={downloadBackup} className="admin-btn admin-btn-primary flex-1">
+              <span>📥 Télécharger la sauvegarde JSON</span>
+            </button>
+            <button onClick={copyJsonToClipboard} className="admin-btn admin-btn-secondary">
+              <span>📋 Copier JSON</span>
+            </button>
+          </div>
         </div>
-        {error && <div className="alert err">{error}</div>}
-        {editable.map((field) => (
-          <label key={field}>
-            {fieldLabels[field] || field}
-            {['image', 'photo', 'logo', 'poster_path', 'video_url', 'image_path'].includes(field) && (
-              <input
-                type="file"
-                accept={field === 'video_url' ? 'video/mp4,video/webm,video/ogg' : 'image/*'}
-                onChange={(e) => e.target.files[0] && uploadField(field, e.target.files[0])}
-              />
-            )}
-            {longFields.has(field) ? (
-              <textarea
-                rows="4"
-                value={values[field] ?? ''}
-                onChange={(e) => setValues({ ...values, [field]: e.target.value })}
-              />
-            ) : (
-              <input
-                type={field === 'password' ? 'password' : 'text'}
-                required={['name', 'title', 'full_name', 'email', 'category', 'description'].includes(field) && (!row || field !== 'password')}
-                value={field === 'password' ? undefined : (values[field] ?? '')}
-                placeholder={field === 'password' ? '12 caractères minimum' : ''}
-                onChange={(e) => setValues({ ...values, [field]: e.target.value })}
-              />
-            )}
+
+        <div className="admin-card space-y-4">
+          <div className="admin-card-head">
+            <h2><span>📥</span> Restaurer une sauvegarde</h2>
+          </div>
+          <p className="text-xs text-slate-400">
+            Sélectionnez un fichier JSON de sauvegarde précédemment exporté pour écraser et actualiser instantanément les données du site.
+          </p>
+          <label className="admin-btn admin-btn-secondary w-full text-center cursor-pointer block">
+            <span>📁 Choisir un fichier JSON à restaurer…</span>
+            <input type="file" accept=".json,application/json" onChange={handleFileUpload} className="hidden" />
           </label>
-        ))}
-        <div className="quick-actions mt-4">
-          <button className="btn-pro-admin-primary" type="submit" disabled={busy}>
-            {busy ? 'Enregistrement…' : 'Enregistrer'}
-          </button>
-          <button className="btn-pro-admin-secondary" type="button" onClick={onClose}>
-            Annuler
+        </div>
+      </div>
+
+      <div className="admin-card border-rose-500/20 bg-rose-950/10 p-4">
+        <div className="flex items-center justify-between">
+          <div>
+            <strong className="text-rose-300 text-sm block">Zone de réinitialisation</strong>
+            <span className="text-xs text-slate-400">
+              Rétablit les données de démonstration initiales et efface les modifications locales.
+            </span>
+          </div>
+          <button onClick={resetToFactory} className="admin-btn admin-btn-danger text-xs">
+            Réinitialiser les données
           </button>
         </div>
-      </form>
+      </div>
     </div>
   );
 }
 
-export function AdminPanel({ admin, csrfToken, onLogout }) {
-  const route = location.pathname.split('/')[2] || 'overview';
-  const section = route === 'activity' ? 'admin_activity' : route;
-  const [rows, setRows] = useState([]);
-  const [fields, setFields] = useState([]);
-  const [overview, setOverview] = useState(null);
-  const [error, setError] = useState('');
-  const [formRow, setFormRow] = useState(undefined);
+// --------------------------------------------------------------------------
+// 7. GENERIC TABLE VIEW (Skills, Services, Testimonials, Videos)
+// --------------------------------------------------------------------------
+function AdminGenericView({ section, data, onUpdateData, onShowToast }) {
+  const key = section === 'media_videos' ? 'videos' : section;
+  const items = Array.isArray(data[key]) ? data[key] : [];
+  const [list, setList] = useState(items);
+  const [search, setSearch] = useState('');
+  const [modalItem, setModalItem] = useState(null);
 
-  const load = async () => {
-    setError('');
-    try {
-      if (section === 'overview') {
-        if (apiBase) {
-          setOverview(await api('/admin/overview'));
-        } else {
-          setOverview({
-            counts: {
-              projects: (defaultData.projects || []).length,
-              skills: (defaultData.skills || []).length,
-              services: (defaultData.services || []).length,
-              media_videos: (defaultData.videos || []).length,
-              messages: 0,
-              testimonials: (defaultData.testimonials || []).length,
-              visits: 142
-            },
-            messages: []
-          });
-        }
-      } else {
-        if (apiBase) {
-          const data = await api(`/admin/resources/${section}`);
-          setRows(data.rows || []);
-          setFields(data.fields || []);
-        } else {
-          const key = section === 'media_videos' ? 'videos' : section === 'admin_activity' ? 'activity' : section;
-          const items = defaultData[key] || defaultData[section] || [];
-          const list = Array.isArray(items) ? items : [items].filter(Boolean);
-          setRows(list);
-          setFields(list[0] ? Object.keys(list[0]) : []);
-        }
-      }
-    } catch (e) {
-      setError(e.message);
-    }
-  };
+  useEffect(() => {
+    setList(Array.isArray(data[key]) ? data[key] : []);
+  }, [section, data]);
 
-  useEffect(() => { load(); }, [section]);
+  const fields = list[0] ? Object.keys(list[0]).filter((k) => k !== 'id') : ['name', 'category', 'level'];
 
-  const remove = async (row) => {
-    if (!confirm('Supprimer définitivement cet élément ?')) return;
-    if (apiBase) {
-      try {
-        await api(`/admin/resources/${section}/${row.id}`, { method: 'DELETE', headers: { 'x-csrf-token': csrfToken } });
-        load();
-      } catch (e) {
-        setError(e.message);
-      }
+  const saveItem = (item) => {
+    let updated;
+    if (item.id) {
+      updated = list.map((x) => (x.id === item.id ? item : x));
     } else {
-      setRows(rows.filter((r) => r.id !== row.id));
+      updated = [{ ...item, id: Date.now() }, ...list];
     }
+    setList(updated);
+    onUpdateData({ ...data, [key]: updated });
+    setModalItem(null);
+    onShowToast('✅ Élément enregistré.');
   };
 
-  const logout = async () => {
-    localStorage.removeItem('portfolio-admin-session');
-    if (apiBase) {
-      try {
-        await api('/admin/logout', { method: 'POST', headers: { 'x-csrf-token': csrfToken } });
-      } catch (e) {
-        setError(e.message);
-      }
-    }
-    onLogout();
+  const removeItem = (id) => {
+    if (!confirm('Supprimer cet élément ?')) return;
+    const updated = list.filter((x) => x.id !== id);
+    setList(updated);
+    onUpdateData({ ...data, [key]: updated });
+    onShowToast('🗑️ Élément supprimé.');
   };
 
-  const cell = (val) => String(val ?? '').slice(0, 100) || '—';
+  const filtered = list.filter((item) => {
+    if (!search) return true;
+    return JSON.stringify(item).toLowerCase().includes(search.toLowerCase());
+  });
+
+  return (
+    <div className="space-y-6">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-4 border-b border-white/10">
+        <div>
+          <h2 className="text-lg font-bold text-white flex items-center gap-2">
+            <span>⚙️</span> {messages[section] || section} ({list.length})
+          </h2>
+          <p className="text-xs text-slate-400">
+            Gestion des éléments de la section {messages[section] || section}.
+          </p>
+        </div>
+        <button
+          onClick={() => {
+            const blank = {};
+            fields.forEach((f) => (blank[f] = ''));
+            setModalItem(blank);
+          }}
+          className="admin-btn admin-btn-primary"
+        >
+          <span>+ Ajouter</span>
+        </button>
+      </div>
+
+      <input
+        type="text"
+        placeholder="Rechercher…"
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
+        className="admin-input max-w-sm"
+      />
+
+      <div className="admin-card p-0 overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full text-left text-xs">
+            <thead className="bg-black/30 border-b border-white/10 text-slate-400 uppercase tracking-wider text-[10px]">
+              <tr>
+                {fields.slice(0, 5).map((f) => (
+                  <th key={f} className="p-3">
+                    {fieldLabels[f] || f}
+                  </th>
+                ))}
+                <th className="p-3 text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-white/5 text-slate-200">
+              {filtered.map((item) => (
+                <tr key={item.id} className="hover:bg-white/5 transition-colors">
+                  {fields.slice(0, 5).map((f) => (
+                    <td key={f} className="p-3 max-w-[200px] truncate">
+                      {String(item[f] ?? '—')}
+                    </td>
+                  ))}
+                  <td className="p-3 text-right">
+                    <div className="flex items-center justify-end gap-2">
+                      <button
+                        onClick={() => setModalItem(item)}
+                        className="admin-btn admin-btn-secondary py-1 px-2.5 text-xs"
+                      >
+                        ✏️
+                      </button>
+                      <button
+                        onClick={() => removeItem(item.id)}
+                        className="admin-btn admin-btn-danger py-1 px-2.5 text-xs"
+                      >
+                        🗑️
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {modalItem && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+          <div className="bg-[#0b1526] border border-sky-400/30 rounded-2xl max-w-lg w-full p-6 shadow-2xl">
+            <div className="flex items-center justify-between pb-3 border-b border-white/10 mb-4">
+              <h3 className="text-base font-bold text-white">
+                {modalItem.id ? 'Modifier' : 'Ajouter'} — {messages[section] || section}
+              </h3>
+              <button onClick={() => setModalItem(null)} className="text-slate-400 hover:text-white">✕</button>
+            </div>
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                saveItem(modalItem);
+              }}
+              className="space-y-3 text-xs"
+            >
+              {fields.map((f) => (
+                <div key={f} className="admin-form-group">
+                  <label>{fieldLabels[f] || f}</label>
+                  <input
+                    className="admin-input"
+                    value={modalItem[f] ?? ''}
+                    onChange={(e) => setModalItem({ ...modalItem, [f]: e.target.value })}
+                  />
+                </div>
+              ))}
+              <div className="flex justify-end gap-2 pt-3 border-t border-white/10">
+                <button type="button" onClick={() => setModalItem(null)} className="admin-btn admin-btn-secondary">
+                  Annuler
+                </button>
+                <button type="submit" className="admin-btn admin-btn-primary">
+                  Enregistrer
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// --------------------------------------------------------------------------
+// 8. ADMIN OVERVIEW DASHBOARD
+// --------------------------------------------------------------------------
+function AdminOverviewView({ data, admin, onNavigate, onShowToast }) {
+  const projects = data.projects || [];
+  const skills = data.skills || [];
+  const services = data.services || [];
+  const messagesList = getStoredMessages();
+  const unreadCount = messagesList.filter((m) => m.status === 'new').length;
+
+  return (
+    <div className="space-y-8">
+      {/* Welcome Banner */}
+      <div className="p-6 rounded-2xl bg-gradient-to-r from-sky-950/60 via-slate-900 to-indigo-950/60 border border-sky-400/20 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+        <div>
+          <span className="text-[11px] font-mono text-sky-400 font-bold uppercase tracking-wider block mb-1">
+            Tableau de Bord
+          </span>
+          <h2 className="text-2xl font-bold text-white">
+            Bonjour, {admin?.name || 'Yves Yao'} 👋
+          </h2>
+          <p className="text-xs text-slate-300 mt-1 max-w-xl">
+            Bienvenue dans votre centre de commande professionnel. Toute modification enregistrée est instantanément synchronisée sur votre site public.
+          </p>
+        </div>
+        <div className="flex flex-wrap items-center gap-2">
+          <a
+            href="/"
+            target="_blank"
+            rel="noreferrer"
+            className="admin-btn admin-btn-primary text-xs"
+          >
+            <span>🌐 Voir le site public ↗</span>
+          </a>
+          <button
+            onClick={() => onNavigate('settings')}
+            className="admin-btn admin-btn-secondary text-xs"
+          >
+            <span>✏️ Profil & Réseaux</span>
+          </button>
+        </div>
+      </div>
+
+      {/* KPI Cards */}
+      <div className="admin-kpis">
+        <div className="admin-kpi cursor-pointer" onClick={() => onNavigate('projects')}>
+          <div className="admin-kpi-top">
+            <span className="admin-kpi-label">Projets publiés</span>
+            <span className="admin-kpi-icon">💼</span>
+          </div>
+          <div className="admin-kpi-value">{projects.length}</div>
+          <div className="admin-kpi-meta text-emerald-400">
+            {projects.filter((p) => p.featured).length} mis en vedette ⭐
+          </div>
+        </div>
+
+        <div className="admin-kpi cursor-pointer" onClick={() => onNavigate('skills')}>
+          <div className="admin-kpi-top">
+            <span className="admin-kpi-label">Compétences</span>
+            <span className="admin-kpi-icon">🛠️</span>
+          </div>
+          <div className="admin-kpi-value">{skills.length}</div>
+          <div className="admin-kpi-meta text-sky-400">
+            Technologies & Frameworks
+          </div>
+        </div>
+
+        <div className="admin-kpi cursor-pointer" onClick={() => onNavigate('messages')}>
+          <div className="admin-kpi-top">
+            <span className="admin-kpi-label">Messages reçus</span>
+            <span className="admin-kpi-icon">💬</span>
+          </div>
+          <div className="admin-kpi-value">{messagesList.length}</div>
+          <div className="admin-kpi-meta text-amber-400">
+            {unreadCount > 0 ? `${unreadCount} nouveau(x) à traiter` : 'Tous traités'}
+          </div>
+        </div>
+
+        <div className="admin-kpi">
+          <div className="admin-kpi-top">
+            <span className="admin-kpi-label">Visites estimées</span>
+            <span className="admin-kpi-icon">👁️</span>
+          </div>
+          <div className="admin-kpi-value">142</div>
+          <div className="admin-kpi-meta text-slate-400">
+            Trafic Portfolio
+          </div>
+        </div>
+      </div>
+
+      {/* 2-Columns Layout */}
+      <div className="admin-grid-2">
+        {/* Messages Récents */}
+        <div className="admin-card">
+          <div className="admin-card-head">
+            <h2><span>📬</span> Messages récents</h2>
+            <button
+              onClick={() => onNavigate('messages')}
+              className="text-xs text-sky-400 hover:text-sky-300 font-semibold"
+            >
+              Voir tout ({messagesList.length}) ↗
+            </button>
+          </div>
+          {messagesList.length === 0 ? (
+            <p className="text-xs text-slate-400 py-6 text-center">Aucun message pour l'instant.</p>
+          ) : (
+            <div className="space-y-3">
+              {messagesList.slice(0, 3).map((m) => (
+                <div
+                  key={m.id}
+                  onClick={() => onNavigate('messages')}
+                  className="p-3 rounded-xl bg-black/20 hover:bg-white/5 border border-white/5 cursor-pointer transition-colors"
+                >
+                  <div className="flex items-center justify-between text-xs mb-1">
+                    <strong className="text-white">{m.name}</strong>
+                    <span className="text-[10px] text-slate-500">
+                      {new Date(m.created_at).toLocaleDateString()}
+                    </span>
+                  </div>
+                  <p className="text-xs text-slate-300 line-clamp-1">{m.message}</p>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Projets Clés & Liens rapides */}
+        <div className="admin-card space-y-4">
+          <div className="admin-card-head">
+            <h2><span>⚡</span> Accès Rapides</h2>
+          </div>
+          <div className="space-y-2">
+            {[
+              { label: 'Gérer les Projets & Études de cas', sec: 'projects', icon: '💼' },
+              { label: 'Mettre à jour le Profil & Réseaux Sociaux', sec: 'settings', icon: '👤' },
+              { label: 'Consulter la Boîte de Réception', sec: 'messages', icon: '💬' },
+              { label: 'Compétences & Stack technique', sec: 'skills', icon: '🛠️' },
+              { label: 'Sauvegarder & Exporter les données (JSON)', sec: 'backup', icon: '💾' }
+            ].map((item) => (
+              <button
+                key={item.sec}
+                onClick={() => onNavigate(item.sec)}
+                className="w-full flex items-center justify-between p-3 rounded-xl bg-black/20 hover:bg-sky-500/10 border border-white/5 hover:border-sky-500/30 text-xs text-slate-300 hover:text-white transition-all text-left"
+              >
+                <span className="flex items-center gap-2.5">
+                  <span>{item.icon}</span>
+                  <span className="font-medium">{item.label}</span>
+                </span>
+                <span className="text-sky-400">→</span>
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// --------------------------------------------------------------------------
+// 9. UNIFIED MAIN ADMIN PANEL
+// --------------------------------------------------------------------------
+export function AdminPanel({ admin, csrfToken, onLogout, initialSection, data: propData, onUpdateData }) {
+  const [data, setData] = useState(() => {
+    if (propData) return propData;
+    try {
+      const saved = localStorage.getItem('portfolio-custom-data');
+      if (saved) return JSON.parse(saved);
+    } catch (e) {}
+    return defaultData;
+  });
+
+  const getSectionFromUrl = () => {
+    const seg = location.pathname.split('/')[2];
+    return seg && seg.length > 0 ? seg : 'overview';
+  };
+
+  const [section, setSection] = useState(initialSection || getSectionFromUrl);
+  const [toast, setToast] = useState('');
+
+  const showToast = (msg) => {
+    setToast(msg);
+    setTimeout(() => setToast(''), 3500);
+  };
+
+  const handleUpdate = (newData) => {
+    setData(newData);
+    try {
+      localStorage.setItem('portfolio-custom-data', JSON.stringify(newData));
+    } catch (e) {}
+    if (onUpdateData) onUpdateData(newData);
+  };
+
+  const navigate = (sec) => {
+    setSection(sec);
+    const newPath = sec === 'overview' ? '/admin' : `/admin/${sec}`;
+    window.history.pushState(null, '', newPath);
+  };
+
+  useEffect(() => {
+    const handlePop = () => {
+      setSection(getSectionFromUrl());
+    };
+    window.addEventListener('popstate', handlePop);
+    return () => window.removeEventListener('popstate', handlePop);
+  }, []);
+
+  const navLinks = [
+    { id: 'overview', label: "Vue d'ensemble", icon: '📊' },
+    { id: 'settings', label: 'Profil & Réseaux', icon: '👤' },
+    { id: 'projects', label: 'Projets & Études', icon: '💼' },
+    { id: 'skills', label: 'Compétences', icon: '🛠️' },
+    { id: 'services', label: 'Services', icon: '🚀' },
+    { id: 'messages', label: 'Messages', icon: '💬', badge: getStoredMessages().filter((m) => m.status === 'new').length },
+    { id: 'testimonials', label: 'Témoignages', icon: '🌟' },
+    { id: 'media_videos', label: 'Vidéos', icon: '🎬' },
+    { id: 'backup', label: 'Sauvegarde & Export', icon: '💾' }
+  ];
 
   return (
     <div className="admin-shell">
-      <aside className="sidebar">
-        <a className="adminbrand" href="/">
-          <span className="mark">
-            <img src={asset('assets/logo-yy.png')} alt="YY" />
-          </span>
-          <span>
-            Portfolio<br />
-            <small>Administration</small>
-          </span>
-        </a>
-        <nav>
-          {navItems.map((item) => (
-            <a key={item} className={section === item ? 'is-active' : ''} href={item === 'overview' ? '/admin' : `/admin/${item}`}>
-              {messages[item] || item}
-            </a>
+      {/* Sidebar Navigation */}
+      <aside className="admin-sidebar">
+        <div className="admin-sidebar-header">
+          <a href="/admin" onClick={(e) => { e.preventDefault(); navigate('overview'); }} className="admin-sidebar-logo">
+            <img src="/assets/logo-yy.png" alt="Yves Yao" />
+            <div className="admin-sidebar-title">
+              <strong>Yves Yao</strong>
+              <span>Administration Pro</span>
+            </div>
+          </a>
+        </div>
+
+        <nav className="admin-sidebar-nav">
+          {navLinks.map((item) => (
+            <div
+              key={item.id}
+              onClick={() => navigate(item.id)}
+              className={`admin-nav-item ${section === item.id ? 'is-active' : ''}`}
+            >
+              <span className="admin-nav-icon">{item.icon}</span>
+              <span>{item.label}</span>
+              {item.badge > 0 && <span className="admin-nav-badge">{item.badge}</span>}
+            </div>
           ))}
         </nav>
-        <div className="mt-auto pt-4 border-t border-white/10 space-y-2">
+
+        <div className="admin-sidebar-footer">
           <a
             href="/"
-            className="text-xs text-slate-400 hover:text-white flex items-center gap-1.5 px-3 py-2 rounded-lg transition-colors"
+            className="text-xs text-slate-400 hover:text-white flex items-center gap-2 px-3 py-2 rounded-lg transition-colors"
           >
             <span>←</span>
             <span>Voir le site public</span>
           </a>
-          <button className="btn-pro-admin-danger logout w-full justify-start" onClick={logout}>
-            Déconnexion ↗
+          <button
+            onClick={onLogout}
+            className="admin-btn admin-btn-danger w-full justify-start text-xs py-2"
+          >
+            <span>🚪 Déconnexion</span>
           </button>
         </div>
       </aside>
 
-      <main className="adminmain">
-        <div className="topbar">
-          <div>
-            <span className="kicker">ESPACE ADMINISTRATEUR</span>
-            <h1>{messages[section] || section}</h1>
+      {/* Main Content Area */}
+      <main className="admin-content">
+        <div className="admin-topbar">
+          <div className="admin-topbar-left">
+            <span>ESPACE DE GESTION</span>
+            <h1>{navLinks.find((l) => l.id === section)?.label || 'Administration'}</h1>
           </div>
-          <div className="flex items-center gap-3">
-            <span className="text-sm text-slate-300">
-              Connecté : <strong>{admin.name}</strong> ({admin.email})
-            </span>
+          <div className="admin-topbar-right">
+            <div className="admin-status-pill">
+              <span className="admin-status-dot" />
+              <span>{apiBase ? 'Connecté (API)' : 'Autonome (Vercel)'}</span>
+            </div>
+            <div className="admin-user-pill">
+              <span>👤</span>
+              <span>{admin?.name || 'Yves Yao'}</span>
+            </div>
           </div>
         </div>
 
-        {error && <div className="alert err">{error}</div>}
+        <div className="admin-page-body">
+          {section === 'overview' && (
+            <AdminOverviewView
+              data={data}
+              admin={admin}
+              onNavigate={navigate}
+              onShowToast={showToast}
+            />
+          )}
 
-        {section === 'overview' ? (
-          <>
-            {overview && (
-              <>
-                <div className="admin-stats">
-                  {Object.entries(overview.counts).map(([k, val]) => (
-                    <article className="stat-modern" key={k}>
-                      <div className="stat-top">
-                        <span>{messages[k] || ({ newMessages: 'Nouveaux messages', visits: 'Visites totales' }[k] || k)}</span>
-                        <span className="stat-dot" />
-                      </div>
-                      <strong>{val}</strong>
-                    </article>
-                  ))}
-                </div>
-                <div className="admin-columns">
-                  <section className="panel activity-panel">
-                    <div className="panelhead">
-                      <h2>Messages récents</h2>
-                      <a className="btn-pro-admin-secondary" href="/admin/messages">Voir tout ↗</a>
-                    </div>
-                    {overview.messages && overview.messages.length ? (
-                      overview.messages.map((m) => (
-                        <article className="message-item" key={m.id}>
-                          <span className="message-avatar">{m.name[0]}</span>
-                          <span className="message-content">
-                            <strong>{m.name}</strong>
-                            <small>{m.message}</small>
-                          </span>
-                          <time>{new Date(m.created_at).toLocaleDateString()}</time>
-                        </article>
-                      ))
-                    ) : (
-                      <p className="empty-state">Aucun message pour le moment.</p>
-                    )}
-                  </section>
-                  <section className="panel next-panel">
-                    <h2>Accès rapides</h2>
-                    {['projects', 'media_videos', 'settings', 'messages'].map((i) => (
-                      <a className="shortcut group" href={`/admin/${i}`} key={i}>
-                        <span>↗</span>
-                        <strong>{messages[i]}</strong>
-                        <b className="group-hover:translate-x-1 transition-transform">→</b>
-                      </a>
-                    ))}
-                  </section>
-                </div>
-              </>
-            )}
-          </>
-        ) : (
-          <section className="panel resource-panel">
-            <div className="panelhead">
-              <h2>{messages[section] || section}</h2>
-              <div className="flex items-center gap-2">
-                {!['messages', 'activity', 'admin_activity', 'login_attempts', 'visits'].includes(section) && (
-                  <button className="btn-pro-admin-primary" onClick={() => setFormRow(null)}>+ Ajouter</button>
-                )}
-                {section === 'media_videos' && apiBase && (
-                  <a className="btn-pro-admin-secondary action" href={apiUrl('/admin/export/media_videos')}>Exporter CSV ↗</a>
-                )}
-              </div>
-            </div>
+          {section === 'settings' && (
+            <AdminSettingsView
+              data={data}
+              onUpdateData={handleUpdate}
+              onShowToast={showToast}
+            />
+          )}
 
-            {rows.length ? (
-              <div className="table-scroll">
-                <table>
-                  <thead>
-                    <tr>
-                      {fields.filter((f) => f !== 'password_hash').slice(0, 6).map((f) => (
-                        <th key={f}>{fieldLabels[f] || f}</th>
-                      ))}
-                      <th>Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {rows.map((row) => (
-                      <tr key={row.id}>
-                        {fields.filter((f) => f !== 'password_hash').slice(0, 6).map((f) => (
-                          <td key={f}>{cell(row[f])}</td>
-                        ))}
-                        <td className="row-actions">
-                          {!['messages', 'activity', 'admin_activity', 'login_attempts', 'visits'].includes(section) && (
-                            <button className="btn-pro-admin-secondary" onClick={() => setFormRow(row)}>Modifier</button>
-                          )}
-                          {!['settings', 'messages', 'activity', 'admin_activity', 'login_attempts', 'visits'].includes(section) && (
-                            <button className="btn-pro-admin-danger" onClick={() => remove(row)}>Supprimer</button>
-                          )}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            ) : (
-              <p className="empty-state">Aucune donnée à afficher.</p>
-            )}
-          </section>
-        )}
+          {section === 'projects' && (
+            <AdminProjectsView
+              data={data}
+              onUpdateData={handleUpdate}
+              onShowToast={showToast}
+            />
+          )}
 
-        {formRow !== undefined && (
-          <AdminForm
-            table={section}
-            fields={fields}
-            row={formRow}
-            csrfToken={csrfToken}
-            onClose={() => setFormRow(undefined)}
-            onSaved={() => { setFormRow(undefined); load(); }}
-          />
-        )}
+          {section === 'messages' && (
+            <AdminMessages csrfToken={csrfToken} onLogout={onLogout} />
+          )}
+
+          {section === 'backup' && (
+            <AdminBackup
+              admin={admin}
+              csrfToken={csrfToken}
+              onLogout={onLogout}
+              data={data}
+              onUpdateData={handleUpdate}
+              onShowToast={showToast}
+            />
+          )}
+
+          {['skills', 'services', 'testimonials', 'media_videos'].includes(section) && (
+            <AdminGenericView
+              section={section}
+              data={data}
+              onUpdateData={handleUpdate}
+              onShowToast={showToast}
+            />
+          )}
+        </div>
       </main>
+
+      {toast && <div className="admin-toast">{toast}</div>}
     </div>
   );
 }

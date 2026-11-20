@@ -3,7 +3,7 @@ import { Header } from './Header.jsx';
 import { Footer } from './Footer.jsx';
 import { ProjectCard } from './ProjectCard.jsx';
 import { SocialGroup } from './SocialLinks.jsx';
-import { api, apiUrl, asset } from '../utils/api.js';
+import { api, apiUrl, asset, apiBase } from '../utils/api.js';
 import { english, french } from '../locales/messages.js';
 
 export function Portfolio({ data, locale, setLocale, csrfToken }) {
@@ -56,11 +56,25 @@ export function Portfolio({ data, locale, setLocale, csrfToken }) {
     setSending(true);
     setNotice('');
     try {
-      await api('/contact', {
-        method: 'POST',
-        headers: { 'x-csrf-token': csrfToken },
-        body: JSON.stringify({ ...form, website: event.currentTarget.elements.website?.value || '' })
-      });
+      if (apiBase) {
+        await api('/contact', {
+          method: 'POST',
+          headers: { 'x-csrf-token': csrfToken },
+          body: JSON.stringify({ ...form, website: event.currentTarget.elements.website?.value || '' })
+        });
+      } else {
+        await new Promise((resolve) => setTimeout(resolve, 600));
+        const newMsg = {
+          id: Date.now(),
+          name: form.name.trim(),
+          email: form.email.trim(),
+          message: form.message.trim(),
+          status: 'new',
+          created_at: new Date().toISOString()
+        };
+        const currentMessages = JSON.parse(localStorage.getItem('portfolio-messages') || '[]');
+        localStorage.setItem('portfolio-messages', JSON.stringify([newMsg, ...currentMessages]));
+      }
       setNotice(t.sent);
       setForm({ name: '', email: '', message: '' });
     } catch (error) {
