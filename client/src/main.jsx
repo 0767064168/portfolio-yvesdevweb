@@ -19,9 +19,10 @@ const api = async (url, options = {}) => {
     headers: { ...(options.body instanceof FormData ? {} : { 'Content-Type': 'application/json' }), ...options.headers }
   });
   const contentType = response.headers.get('content-type') || '';
-  const data = response.status === 204 ? {} : contentType.includes('application/json')
-    ? await response.json()
-    : { error: await response.text() || response.statusText };
+  if (response.status !== 204 && !contentType.includes('application/json')) {
+    throw new Error('Réponse non JSON reçue du serveur.');
+  }
+  const data = response.status === 204 ? {} : await response.json();
   if (!response.ok) throw new Error(data.error || 'La requête a échoué.');
   return data;
 };
@@ -94,10 +95,11 @@ function Header({ settings, locale, setLocale, translations = {} }) {
 }
 
 function ProjectCard({ project, locale }) {
+  if (!project) return null;
   const category = locale === 'en' ? project.category_en || project.category : project.category;
-  return <a className="project group" href={`/projects/${project.id}`} data-project-filter={`${project.category} ${project.technologies || ''}`.toLowerCase()}>
-    <div className="project-image"><img src={asset(project.cover_image || project.image)} alt={project.title} loading="lazy" /></div>
-    <div className="project-content"><span className="project-category">{category}</span><h3>{locale === 'en' ? project.title_en || project.title : project.title}</h3><p>{(locale === 'en' ? project.description_en || project.description : project.description)?.slice(0, 150)}</p><div className="techs">{(project.technologies || '').split(',').map((tech) => <span key={tech}>{tech.trim()}</span>)}</div><span className="project-link group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform duration-200">↗</span></div>
+  return <a className="project group" href={`/projects/${project.id}`} data-project-filter={`${project.category || ''} ${project.technologies || ''}`.toLowerCase()}>
+    <div className="project-image"><img src={asset(project.cover_image || project.image)} alt={project.title || ''} loading="lazy" /></div>
+    <div className="project-content"><span className="project-category">{category || ''}</span><h3>{locale === 'en' ? project.title_en || project.title : project.title}</h3><p>{(locale === 'en' ? project.description_en || project.description : project.description)?.slice(0, 150)}</p><div className="techs">{(project.technologies || '').split(',').map((tech) => <span key={tech}>{tech.trim()}</span>)}</div><span className="project-link group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform duration-200">↗</span></div>
   </a>;
 }
 
@@ -171,7 +173,7 @@ function Portfolio({ data, locale, setLocale, csrfToken }) {
       <section className="proof-strip"><div className="wrap proof-grid"><article><strong>{projects.length}</strong><span>{text('Projets présentés', 'Presented projects')}</span></article><article><strong>{skills.length}</strong><span>{text('Expertises clés', 'Core skills')}</span></article><article><strong>{techCount}</strong><span>{text('Technologies utilisées', 'Technologies used')}</span></article><article><strong>FR / EN</strong><span>{text('Langues disponibles', 'Available languages')}</span></article></div></section>
       <section className="wrap section principles"><div className="principles-heading"><span className="kicker">03 — {text("POURQUOI MOI", "WHY WORK TOGETHER")}</span><h2>{text("Un partenaire qui pense au-delà", "A partner who thinks beyond")} <span className="gradient">{text("du code.", "the code.")}</span></h2></div><div className="principles-grid"><article><span className="principle-icon">🎯</span><h3>{text("Vision métier", "Business-first")}</h3><p>{text("Chaque interface sert un utilisateur réel et un objectif métier clair.", "Every interface serves a real user and a clear business objective.")}</p></article><article><span className="principle-icon">⚙️</span><h3>{text("Conçu pour durer", "Built to last")}</h3><p>{text("Des bases propres, de bonnes performances et de la place pour évoluer.", "Clean foundations, solid performance, and room to evolve.")}</p></article><article><span className="principle-icon">🤝</span><h3>{text("Présent après livraison", "Present after launch")}</h3><p>{text("Une livraison claire et un accompagnement attentif après la mise en ligne.", "A clear handover and thoughtful support beyond the first release.")}</p></article></div></section>
       <section id="competences" className="wrap section"><div className="section-heading"><span className="kicker">04 — {t.skills.toUpperCase()}</span><h2>{t.skillsTitle} <span className="gradient">{t.skillsEnd}</span></h2></div><div className="grid">{skills.map((skill, index) => <article className="card" key={skill.id}><span className="num">{String(index + 1).padStart(2, '0')}</span><h3>{locale === 'en' ? skill.name_en || skill.name : skill.name}</h3><p>{locale === 'en' ? skill.category_en || skill.category : skill.category}</p><div className="skill-bar"><span style={{ width: `${Math.min(100, Number(skill.level) || 0)}%` }} /></div></article>)}</div></section>
-      <section id="projets" className="wrap section"><div className="section-heading"><span className="kicker">05 — {t.projects.toUpperCase()}</span><h2>{t.projectsTitle} <span className="gradient">{t.projectsEnd}</span></h2></div><div className="project-filters">{['all', ...new Set(projects.map((item) => item.category))].map((value) => <button key={value} className={`btn-pro-filter ${filter === value ? 'is-active' : ''}`} aria-pressed={filter === value} onClick={() => setFilter(value)}>{value === 'all' ? text('Tous', 'All') : value}</button>)}</div><div className="project-grid">{projects.filter((item) => filter === 'all' || item.category === filter).map((project) => <ProjectCard key={project.id} project={project} locale={locale} />)}</div></section>
+      <section id="projets" className="wrap section"><div className="section-heading"><span className="kicker">05 — {t.projects.toUpperCase()}</span><h2>{t.projectsTitle} <span className="gradient">{t.projectsEnd}</span></h2></div><div className="project-filters">{['all', ...new Set((projects || []).map((item) => item?.category).filter(Boolean))].map((value) => <button key={value} className={`btn-pro-filter ${filter === value ? 'is-active' : ''}`} aria-pressed={filter === value} onClick={() => setFilter(value)}>{value === 'all' ? text('Tous', 'All') : value}</button>)}</div><div className="project-grid">{(projects || []).filter((item) => filter === 'all' || item?.category === filter).map((project) => <ProjectCard key={project?.id || Math.random()} project={project} locale={locale} />)}</div></section>
       <section id="contenus" className="wrap section"><div className="section-heading"><span className="kicker">06 — {text('MÉDIAS', 'MEDIA')}</span><h2>{text('Vidéos &', 'Videos &')} <span className="gradient">{text('événements.', 'events.')}</span></h2></div><div className="video-grid">{videos.map((video) => { const source = videoUrl(video.video_url); return <article className="media-video" key={video.id}><div className="media-video-frame">{source?.local ? <video controls preload="metadata" poster={asset(video.poster_path)} src={source.local} onPlay={() => api(`/videos/${video.id}/view`, { method: 'POST' }).catch(() => {})} onPointerDown={() => api(`/videos/${video.id}/click`, { method: 'POST' }).catch(() => {})} /> : source?.embed ? <iframe title={video.title} src={source.embed} loading="lazy" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowFullScreen /> : <div className="empty-state">{text('Format vidéo indisponible.', 'Video format unavailable.')}</div>}</div><h3>{locale === 'en' ? video.title_en || video.title : video.title}</h3><p>{locale === 'en' ? video.description_en || video.description : video.description}</p></article>; })}</div></section>
       <section id="services" className="wrap section"><div className="section-heading"><span className="kicker">07 — {t.services.toUpperCase()}</span><h2>{t.servicesTitle} <span className="gradient">{t.servicesEnd}</span></h2></div><div className="grid">{services.map((service, index) => <article className="card service-card" key={service.id}><span className="num">0{index + 1}</span><h3>{locale === 'en' ? service.title_en || service.title : service.title}</h3><p>{locale === 'en' ? service.description_en || service.description : service.description}</p></article>)}</div></section>
       <section className="wrap section testimonials"><div className="section-heading"><span className="kicker">08 — {text('RETOURS', 'REVIEWS')}</span><h2>{t.reviews}</h2></div><div className="grid">{testimonials.map((item) => <article className="card" key={item.id}><span className="principle-icon">“</span><p>{locale === 'en' ? item.quote_en || item.quote : item.quote}</p><h3>{locale === 'en' ? item.client_name_en || item.client_name : item.client_name}</h3><small>{locale === 'en' ? item.company_en || item.company : item.company}</small></article>)}</div></section>
@@ -306,11 +308,36 @@ function ProjectDetail({ data, locale, setLocale }) {
   const id = location.pathname.split('/').pop();
   const [detail, setDetail] = useState(null);
   const [error, setError] = useState('');
-  useEffect(() => { api(`/projects/${id}`).then(setDetail).catch((exception) => setError(exception.message)); }, [id]);
+  useEffect(() => {
+    api(`/projects/${id}`)
+      .then((res) => {
+        if (res && res.project) {
+          setDetail(res);
+        } else {
+          const localProj = (data?.projects || []).find((p) => String(p.id) === String(id));
+          if (localProj) {
+            const localImages = (data?.images || []).filter((img) => String(img.project_id) === String(id));
+            setDetail({ project: localProj, images: localImages });
+          } else {
+            setError(locale === 'en' ? 'Project not found.' : 'Projet introuvable.');
+          }
+        }
+      })
+      .catch(() => {
+        const localProj = (data?.projects || []).find((p) => String(p.id) === String(id));
+        if (localProj) {
+          const localImages = (data?.images || []).filter((img) => String(img.project_id) === String(id));
+          setDetail({ project: localProj, images: localImages });
+        } else {
+          setError(locale === 'en' ? 'Project not found.' : 'Projet introuvable.');
+        }
+      });
+  }, [id, data, locale]);
   if (error) return <main className="wrap section"><h1>{error}</h1><a className="btn-pro-ghost" href="/#projets">← {locale === 'en' ? english.back : french.back}</a></main>;
-  if (!detail) return <main className="wrap section">Chargement…</main>;
+  if (!detail || !detail.project) return <main className="wrap section">Chargement…</main>;
   const project = detail.project;
-  return <>  <Header settings={data.settings || {}} locale={locale} setLocale={setLocale} translations={data.translations} /><main className="wrap section project-detail-grid"><div><a className="btn-pro-ghost mb-6 inline-flex" href="/#projets">← {locale === 'en' ? english.back : french.back}</a><span className="kicker block mt-4"> {project.category}</span><h1>{locale === 'en' ? project.title_en || project.title : project.title}</h1><p>{locale === 'en' ? project.description_en || project.description : project.description}</p><div className="techs mb-6">{(project.technologies || '').split(',').map((tech) => <span key={tech}>{tech.trim()}</span>)}</div>{project.project_url && <a className="btn-pro-primary" href={project.project_url} target="_blank" rel="noreferrer">{locale === 'en' ? 'Visit project' : 'Voir le projet'} ↗</a>}</div><div className="media-gallery-admin">{detail.images.map((image) => <img key={image.id} src={asset(image.image_path)} alt={image.caption || project.title} />)}</div></main></>;
+  const category = locale === 'en' ? project.category_en || project.category : project.category;
+  return <>  <Header settings={data.settings || {}} locale={locale} setLocale={setLocale} translations={data.translations} /><main className="wrap section project-detail-grid"><div><a className="btn-pro-ghost mb-6 inline-flex" href="/#projets">← {locale === 'en' ? english.back : french.back}</a><span className="kicker block mt-4"> {category || ''}</span><h1>{locale === 'en' ? project.title_en || project.title : project.title}</h1><p>{locale === 'en' ? project.description_en || project.description : project.description}</p><div className="techs mb-6">{(project.technologies || '').split(',').map((tech) => <span key={tech}>{tech.trim()}</span>)}</div>{project.project_url && <a className="btn-pro-primary" href={project.project_url} target="_blank" rel="noreferrer">{locale === 'en' ? 'Visit project' : 'Voir le projet'} ↗</a>}</div><div className="media-gallery-admin">{(detail.images || []).map((image) => <img key={image.id} src={asset(image.image_path)} alt={image.caption || project.title} />)}</div></main></>;
 }
 
 function App() {
@@ -323,8 +350,10 @@ function App() {
   const isAdmin = location.pathname.startsWith('/admin');
   useEffect(() => {
     api('/public').then((publicData) => {
-      if (publicData && publicData.settings) setData(publicData);
-    }).catch((exception) => console.warn('API non joignable, affichage des données locales:', exception.message));
+      if (publicData && publicData.settings && Array.isArray(publicData.projects) && publicData.projects.length > 0) {
+        setData(publicData);
+      }
+    }).catch(() => {});
 
     if (isAdmin) {
       Promise.allSettled([api('/admin/setup'), api('/admin/session')]).then(([setupRes, sessionRes]) => {
@@ -340,7 +369,7 @@ function App() {
   }, [isAdmin]);
   useEffect(() => {
     if (isAdmin) return;
-    api('/visits', { method: 'POST', body: JSON.stringify({ path: location.pathname }) }).catch((exception) => console.error('Visit tracking failed:', exception));
+    api('/visits', { method: 'POST', body: JSON.stringify({ path: location.pathname }) }).catch(() => {});
   }, [isAdmin]);
   useEffect(() => {
     if (isAdmin) {
