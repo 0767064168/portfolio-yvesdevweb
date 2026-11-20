@@ -42,8 +42,11 @@ export function ProjectDetail({ data, locale, setLocale }) {
         <Header settings={data.settings || {}} locale={locale} setLocale={setLocale} translations={data.translations} />
         <main className="wrap section text-center py-24">
           <h1 className="text-3xl font-bold mb-4">{error}</h1>
-          <a className="btn-pro-ghost inline-flex" href="/#projets">
-            ← {t.back}
+          <a className="btn-pro-ghost inline-flex items-center gap-2" href="/#projets">
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
+            </svg>
+            <span>{t.back}</span>
           </a>
         </main>
         <Footer settings={data.settings || {}} locale={locale} />
@@ -81,7 +84,9 @@ export function ProjectDetail({ data, locale, setLocale }) {
         {/* Navigation retour */}
         <div className="mb-8">
           <a className="btn-pro-ghost group inline-flex items-center gap-2 text-sm font-semibold" href="/#projets">
-            <span className="transition-transform group-hover:-translate-x-1">←</span>
+            <svg className="w-4 h-4 transition-transform group-hover:-translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
+            </svg>
             <span>{t.back}</span>
           </a>
         </div>
@@ -114,7 +119,9 @@ export function ProjectDetail({ data, locale, setLocale }) {
               >
                 <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
                 <span>{t.viewDemo}</span>
-                <span className="transition-transform group-hover:translate-x-1 group-hover:-translate-y-0.5">↗</span>
+                <svg className="w-4 h-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 19.5l15-15m0 0H8.25m11.25 0v11.25" />
+                </svg>
               </a>
             )}
 
@@ -129,13 +136,17 @@ export function ProjectDetail({ data, locale, setLocale }) {
                   <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/>
                 </svg>
                 <span>{t.sourceCode}</span>
-                <span className="transition-transform group-hover:translate-x-1 group-hover:-translate-y-0.5">↗</span>
+                <svg className="w-4 h-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 19.5l15-15m0 0H8.25m11.25 0v11.25" />
+                </svg>
               </a>
             )}
 
             <a className="btn-pro-nav group flex items-center gap-1.5" href="/#contact">
               <span>{t.talk}</span>
-              <span className="transition-transform group-hover:translate-x-0.5">→</span>
+              <svg className="w-4 h-4 transition-transform group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+              </svg>
             </a>
           </div>
         </header>
@@ -167,8 +178,10 @@ export function ProjectDetail({ data, locale, setLocale }) {
             {challenge && (
               <div className="p-8 rounded-2xl bg-slate-900/40 border border-white/10">
                 <div className="flex items-center gap-3 mb-4">
-                  <span className="w-8 h-8 rounded-lg bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 font-bold">
-                    !
+                  <span className="w-8 h-8 rounded-lg bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400">
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+                    </svg>
                   </span>
                   <h2 className="text-2xl font-bold text-white font-display">
                     {t.challenge}
@@ -183,8 +196,10 @@ export function ProjectDetail({ data, locale, setLocale }) {
             {solution && (
               <div className="p-8 rounded-2xl bg-slate-900/40 border border-white/10">
                 <div className="flex items-center gap-3 mb-4">
-                  <span className="w-8 h-8 rounded-lg bg-sky-500/10 border border-sky-500/30 flex items-center justify-center text-sky-400 font-bold">
-                    ⚡
+                  <span className="w-8 h-8 rounded-lg bg-sky-500/10 border border-sky-500/30 flex items-center justify-center text-sky-400">
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" />
+                    </svg>
                   </span>
                   <h2 className="text-2xl font-bold text-white font-display">
                     {t.solution}
@@ -199,8 +214,10 @@ export function ProjectDetail({ data, locale, setLocale }) {
             {impact && (
               <div className="p-8 rounded-2xl bg-slate-900/40 border border-emerald-500/20">
                 <div className="flex items-center gap-3 mb-4">
-                  <span className="w-8 h-8 rounded-lg bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 font-bold">
-                    ✓
+                  <span className="w-8 h-8 rounded-lg bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                    </svg>
                   </span>
                   <h2 className="text-2xl font-bold text-white font-display">
                     {t.impact}
