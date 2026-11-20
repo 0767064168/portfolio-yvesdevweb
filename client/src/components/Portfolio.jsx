@@ -113,7 +113,9 @@ export function Portfolio({ data, locale, setLocale, csrfToken }) {
         <section className="wrap hero">
           <div className="hero-copy">
             <div className="eyebrow">{t.available}</div>
-            <h1>{locale === 'en' ? settings.tagline_en || settings.tagline : settings.tagline}</h1>
+            <h1 className="break-normal overflow-visible hyphens-none">
+              {locale === 'en' ? settings.tagline_en || settings.tagline : settings.tagline}
+            </h1>
             <p>{locale === 'en' ? settings.about_text_en || settings.about_text : settings.about_text}</p>
             <div className="actions flex flex-wrap items-center gap-3.5 pt-2">
               <a className="btn-pro-primary group" href="#projets">

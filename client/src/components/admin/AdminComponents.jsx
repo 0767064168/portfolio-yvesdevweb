@@ -71,14 +71,6 @@ export function AdminLogin({ csrfToken, onLogin }) {
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
 
-  const fillDefaultCredentials = () => {
-    setForm({
-      email: 'admin@yvesyao.dev',
-      password: 'YvesDevWeb@2026!'
-    });
-    setError('');
-  };
-
   const submit = async (event) => {
     event.preventDefault();
     setBusy(true);
@@ -141,33 +133,6 @@ export function AdminLogin({ csrfToken, onLogin }) {
           <p className="text-sm text-slate-400 mt-1">
             Gérez vos projets, compétences, médias et paramètres.
           </p>
-        </div>
-
-        <div className="mb-6 p-4 rounded-xl bg-sky-950/40 border border-sky-500/30 text-xs text-slate-300 space-y-2">
-          <div className="flex items-center justify-between">
-            <strong className="text-sky-300 font-semibold flex items-center gap-1.5">
-              <IconKey size={14} className="text-sky-400" />
-              <span>Identifiants d’accès :</span>
-            </strong>
-            <button
-              type="button"
-              onClick={fillDefaultCredentials}
-              className="text-[11px] px-2 py-0.5 rounded-md bg-sky-500/20 hover:bg-sky-500/30 text-sky-200 border border-sky-400/30 transition-colors font-medium flex items-center gap-1"
-            >
-              <IconLightning size={12} className="text-amber-400" />
-              <span>Remplir</span>
-            </button>
-          </div>
-          <div className="grid grid-cols-1 gap-1 font-mono text-[11px] bg-black/30 p-2 rounded-lg border border-white/5">
-            <div>
-              <span className="text-slate-400">Email : </span>
-              <span className="text-amber-300 font-semibold select-all">admin@yvesyao.dev</span>
-            </div>
-            <div>
-              <span className="text-slate-400">Mot de passe : </span>
-              <span className="text-amber-300 font-semibold select-all">YvesDevWeb@2026!</span>
-            </div>
-          </div>
         </div>
 
         {error && (
@@ -1677,57 +1642,61 @@ function AdminOverviewView({ data, admin, onNavigate, onShowToast }) {
         </div>
       </div>
 
-      {/* KPI Cards */}
+      {/* KPI Cards (Bleu pure, Jaune, Vert, Orange) */}
       <div className="admin-kpis">
-        <div className="admin-kpi cursor-pointer" onClick={() => onNavigate('projects')}>
+        {/* 1. BLEU PURE : Projets */}
+        <div className="admin-kpi kpi-blue cursor-pointer" onClick={() => onNavigate('projects')}>
           <div className="admin-kpi-top">
             <span className="admin-kpi-label">Projets publiés</span>
-            <span className="admin-kpi-icon text-sky-400">
+            <span className="admin-kpi-icon kpi-ico-blue">
               <IconProjects size={20} />
             </span>
           </div>
-          <div className="admin-kpi-value">{projects.length}</div>
-          <div className="admin-kpi-meta text-emerald-400 flex items-center gap-1">
+          <div className="admin-kpi-value kpi-val-blue">{projects.length}</div>
+          <div className="admin-kpi-meta text-blue-400 flex items-center gap-1 font-medium">
             <IconStar size={12} />
             <span>{projects.filter((p) => p.featured).length} mis en vedette</span>
           </div>
         </div>
 
-        <div className="admin-kpi cursor-pointer" onClick={() => onNavigate('skills')}>
+        {/* 2. JAUNE : Compétences */}
+        <div className="admin-kpi kpi-yellow cursor-pointer" onClick={() => onNavigate('skills')}>
           <div className="admin-kpi-top">
             <span className="admin-kpi-label">Compétences</span>
-            <span className="admin-kpi-icon text-indigo-400">
+            <span className="admin-kpi-icon kpi-ico-yellow">
               <IconSkills size={20} />
             </span>
           </div>
-          <div className="admin-kpi-value">{skills.length}</div>
-          <div className="admin-kpi-meta text-sky-400">
+          <div className="admin-kpi-value kpi-val-yellow">{skills.length}</div>
+          <div className="admin-kpi-meta text-yellow-400 font-medium">
             Technologies & Frameworks
           </div>
         </div>
 
-        <div className="admin-kpi cursor-pointer" onClick={() => onNavigate('messages')}>
+        {/* 3. VERT : Messages */}
+        <div className="admin-kpi kpi-green cursor-pointer" onClick={() => onNavigate('messages')}>
           <div className="admin-kpi-top">
             <span className="admin-kpi-label">Messages reçus</span>
-            <span className="admin-kpi-icon text-amber-400">
+            <span className="admin-kpi-icon kpi-ico-green">
               <IconMessages size={20} />
             </span>
           </div>
-          <div className="admin-kpi-value">{messagesList.length}</div>
-          <div className="admin-kpi-meta text-amber-400">
+          <div className="admin-kpi-value kpi-val-green">{messagesList.length}</div>
+          <div className="admin-kpi-meta text-emerald-400 font-medium">
             {unreadCount > 0 ? `${unreadCount} nouveau(x) à traiter` : 'Tous traités'}
           </div>
         </div>
 
-        <div className="admin-kpi">
+        {/* 4. ORANGE : Visites */}
+        <div className="admin-kpi kpi-orange">
           <div className="admin-kpi-top">
             <span className="admin-kpi-label">Visites estimées</span>
-            <span className="admin-kpi-icon text-slate-400">
+            <span className="admin-kpi-icon kpi-ico-orange">
               <IconEye size={20} />
             </span>
           </div>
-          <div className="admin-kpi-value">142</div>
-          <div className="admin-kpi-meta text-slate-400">
+          <div className="admin-kpi-value kpi-val-orange">142</div>
+          <div className="admin-kpi-meta text-orange-400 font-medium">
             Trafic Portfolio
           </div>
         </div>
