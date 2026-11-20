@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Header } from './Header.jsx';
 import { Footer } from './Footer.jsx';
 import { ProjectCard } from './ProjectCard.jsx';
+import { SocialGroup } from './SocialLinks.jsx';
 import { api, apiUrl, asset } from '../utils/api.js';
 import { english, french } from '../locales/messages.js';
 
@@ -390,6 +391,13 @@ export function Portfolio({ data, locale, setLocale, csrfToken }) {
               {settings.email && <a href={`mailto:${settings.email}`}>{settings.email}</a>}
               {settings.phone && <a href={`tel:${settings.phone}`}>{settings.phone}</a>}
               {settings.location && <span className="text-slate-400 block mt-2 text-sm">📍 {settings.location}</span>}
+            </div>
+
+            <div className="mt-8 pt-6 border-t border-white/10">
+              <span className="text-xs uppercase tracking-wider text-slate-400 font-semibold block mb-3">
+                {text('Réseaux sociaux & Profils', 'Social media & Profiles')} :
+              </span>
+              <SocialGroup settings={settings} />
             </div>
           </div>
 
