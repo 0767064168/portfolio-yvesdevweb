@@ -450,6 +450,12 @@ button:focus-visible,input:focus-visible,textarea:focus-visible,a:focus-visible{
   transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
+.admin-textarea {
+  min-height: 95px;
+  resize: vertical;
+  line-height: 1.6;
+}
+
 .admin-input:focus,
 .admin-textarea:focus,
 .admin-select:focus {

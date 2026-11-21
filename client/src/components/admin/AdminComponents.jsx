@@ -490,7 +490,7 @@ function AdminSettingsView({ data, onUpdateData, onShowToast }) {
             <label>À propos (Français)</label>
             <textarea
               className="admin-textarea"
-              rows="4"
+              rows="6"
               value={form.about_text || ''}
               onChange={(e) => setForm({ ...form, about_text: e.target.value })}
             />
@@ -499,7 +499,7 @@ function AdminSettingsView({ data, onUpdateData, onShowToast }) {
             <label>À propos (Anglais)</label>
             <textarea
               className="admin-textarea"
-              rows="4"
+              rows="6"
               value={form.about_text_en || ''}
               onChange={(e) => setForm({ ...form, about_text_en: e.target.value })}
             />
@@ -1309,16 +1309,16 @@ function AdminProjectsView({ data, onUpdateData, onShowToast }) {
 
       {/* Modal Project Form */}
       {editingProject && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm overflow-y-auto">
-          <div className="bg-[#0b1526] border border-sky-400/30 rounded-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto p-6 shadow-2xl">
-            <div className="flex items-center justify-between pb-4 border-b border-white/10 mb-6">
+        <div className="fixed inset-0 z-50 overflow-y-auto p-4 sm:p-6 bg-black/80 backdrop-blur-sm flex justify-center items-start sm:items-center py-6 sm:py-10">
+          <div className="bg-[#0b1526] border border-sky-400/30 rounded-2xl max-w-3xl w-full max-h-[88vh] flex flex-col shadow-2xl my-auto">
+            <div className="flex items-center justify-between p-6 pb-4 border-b border-white/10 shrink-0">
               <h3 className="text-lg font-bold text-white flex items-center gap-2">
                 <IconProjects size={18} className="text-sky-400" />
                 <span>{editingProject.id ? 'Modifier le projet' : 'Nouveau Projet'}</span>
               </h3>
               <button
                 onClick={() => setEditingProject(null)}
-                className="text-slate-400 hover:text-white p-1"
+                className="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-white/10"
                 aria-label="Fermer"
               >
                 <IconClose size={18} />
@@ -1326,11 +1326,12 @@ function AdminProjectsView({ data, onUpdateData, onShowToast }) {
             </div>
 
             <form
+              id="project-modal-form"
               onSubmit={(e) => {
                 e.preventDefault();
                 saveProject(editingProject);
               }}
-              className="space-y-4 text-xs"
+              className="p-6 overflow-y-auto flex-1 space-y-4 text-xs pr-4"
             >
               <div className="admin-form-grid-2">
                 <div className="admin-form-group">
@@ -1383,7 +1384,7 @@ function AdminProjectsView({ data, onUpdateData, onShowToast }) {
                 <div className="admin-form-group">
                   <label>Description (Français)</label>
                   <textarea
-                    rows="3"
+                    rows="4"
                     className="admin-textarea"
                     value={editingProject.description || ''}
                     onChange={(e) => setEditingProject({ ...editingProject, description: e.target.value })}
@@ -1392,7 +1393,7 @@ function AdminProjectsView({ data, onUpdateData, onShowToast }) {
                 <div className="admin-form-group">
                   <label>Description (Anglais)</label>
                   <textarea
-                    rows="3"
+                    rows="4"
                     className="admin-textarea"
                     value={editingProject.description_en || ''}
                     onChange={(e) => setEditingProject({ ...editingProject, description_en: e.target.value })}
@@ -1410,7 +1411,7 @@ function AdminProjectsView({ data, onUpdateData, onShowToast }) {
                   <div className="admin-form-group">
                     <label>Le Défi / Challenge (FR)</label>
                     <textarea
-                      rows="2"
+                      rows="3"
                       className="admin-textarea"
                       value={editingProject.challenge || ''}
                       onChange={(e) => setEditingProject({ ...editingProject, challenge: e.target.value })}
@@ -1419,7 +1420,7 @@ function AdminProjectsView({ data, onUpdateData, onShowToast }) {
                   <div className="admin-form-group">
                     <label>Le Défi / Challenge (EN)</label>
                     <textarea
-                      rows="2"
+                      rows="3"
                       className="admin-textarea"
                       value={editingProject.challenge_en || ''}
                       onChange={(e) => setEditingProject({ ...editingProject, challenge_en: e.target.value })}
@@ -1428,7 +1429,7 @@ function AdminProjectsView({ data, onUpdateData, onShowToast }) {
                   <div className="admin-form-group">
                     <label>Solution Technique (FR)</label>
                     <textarea
-                      rows="2"
+                      rows="3"
                       className="admin-textarea"
                       value={editingProject.solution || ''}
                       onChange={(e) => setEditingProject({ ...editingProject, solution: e.target.value })}
@@ -1437,7 +1438,7 @@ function AdminProjectsView({ data, onUpdateData, onShowToast }) {
                   <div className="admin-form-group">
                     <label>Solution Technique (EN)</label>
                     <textarea
-                      rows="2"
+                      rows="3"
                       className="admin-textarea"
                       value={editingProject.solution_en || ''}
                       onChange={(e) => setEditingProject({ ...editingProject, solution_en: e.target.value })}
@@ -1446,7 +1447,7 @@ function AdminProjectsView({ data, onUpdateData, onShowToast }) {
                   <div className="admin-form-group">
                     <label>Impact Métier & ROI (FR)</label>
                     <textarea
-                      rows="2"
+                      rows="3"
                       className="admin-textarea"
                       value={editingProject.impact || ''}
                       onChange={(e) => setEditingProject({ ...editingProject, impact: e.target.value })}
@@ -1455,7 +1456,7 @@ function AdminProjectsView({ data, onUpdateData, onShowToast }) {
                   <div className="admin-form-group">
                     <label>Impact Métier & ROI (EN)</label>
                     <textarea
-                      rows="2"
+                      rows="3"
                       className="admin-textarea"
                       value={editingProject.impact_en || ''}
                       onChange={(e) => setEditingProject({ ...editingProject, impact_en: e.target.value })}
@@ -1506,21 +1507,25 @@ function AdminProjectsView({ data, onUpdateData, onShowToast }) {
                   </label>
                 </div>
               </div>
-
-              <div className="flex justify-end gap-3 pt-4 border-t border-white/10">
-                <button
-                  type="button"
-                  onClick={() => setEditingProject(null)}
-                  className="admin-btn admin-btn-secondary"
-                >
-                  Annuler
-                </button>
-                <button type="submit" className="admin-btn admin-btn-primary">
-                  <IconSave size={14} />
-                  <span>Enregistrer le projet</span>
-                </button>
-              </div>
             </form>
+
+            <div className="flex justify-end gap-3 p-6 pt-4 border-t border-white/10 shrink-0 bg-[#07101d]/60 rounded-b-2xl">
+              <button
+                type="button"
+                onClick={() => setEditingProject(null)}
+                className="admin-btn admin-btn-secondary"
+              >
+                Annuler
+              </button>
+              <button
+                type="submit"
+                form="project-modal-form"
+                className="admin-btn admin-btn-primary"
+              >
+                <IconSave size={14} />
+                <span>Enregistrer le projet</span>
+              </button>
+            </div>
           </div>
         </div>
       )}
@@ -1946,43 +1951,86 @@ function AdminGenericView({ section, data, onUpdateData, onShowToast }) {
       </div>
 
       {modalItem && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
-          <div className="bg-[#0b1526] border border-sky-400/30 rounded-2xl max-w-lg w-full p-6 shadow-2xl">
-            <div className="flex items-center justify-between pb-3 border-b border-white/10 mb-4">
+        <div className="fixed inset-0 z-50 overflow-y-auto p-4 sm:p-6 bg-black/80 backdrop-blur-sm flex justify-center items-start sm:items-center py-6 sm:py-10">
+          <div className="bg-[#0b1526] border border-sky-400/30 rounded-2xl max-w-lg w-full max-h-[85vh] flex flex-col shadow-2xl my-auto">
+            <div className="flex items-center justify-between p-5 pb-4 border-b border-white/10 shrink-0">
               <h3 className="text-base font-bold text-white">
                 {modalItem.id ? 'Modifier' : 'Ajouter'} — {messages[section] || section}
               </h3>
-              <button onClick={() => setModalItem(null)} className="text-slate-400 hover:text-white">
+              <button
+                onClick={() => setModalItem(null)}
+                className="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-white/10"
+                aria-label="Fermer"
+              >
                 <IconClose size={18} />
               </button>
             </div>
             <form
+              id="generic-modal-form"
               onSubmit={(e) => {
                 e.preventDefault();
                 saveItem(modalItem);
               }}
-              className="space-y-3 text-xs"
+              className="p-5 overflow-y-auto flex-1 space-y-4 text-xs pr-4"
             >
-              {fields.map((f) => (
-                <div key={f} className="admin-form-group">
-                  <label>{fieldLabels[f] || f}</label>
-                  <input
-                    className="admin-input"
-                    value={modalItem[f] ?? ''}
-                    onChange={(e) => setModalItem({ ...modalItem, [f]: e.target.value })}
-                  />
-                </div>
-              ))}
-              <div className="flex justify-end gap-2 pt-3 border-t border-white/10">
-                <button type="button" onClick={() => setModalItem(null)} className="admin-btn admin-btn-secondary">
-                  Annuler
-                </button>
-                <button type="submit" className="admin-btn admin-btn-primary">
-                  <IconSave size={14} />
-                  <span>Enregistrer</span>
-                </button>
-              </div>
+              {fields.map((f) => {
+                const isTextarea = ['quote', 'quote_en', 'description', 'description_en'].includes(f);
+                const isBool = ['active', 'published', 'featured'].includes(f);
+                return (
+                  <div key={f} className="admin-form-group">
+                    <label className="block mb-1.5 font-medium text-slate-300">
+                      {fieldLabels[f] || f}
+                    </label>
+                    {isTextarea ? (
+                      <textarea
+                        rows={4}
+                        className="admin-textarea"
+                        value={modalItem[f] ?? ''}
+                        onChange={(e) => setModalItem({ ...modalItem, [f]: e.target.value })}
+                        placeholder={`Renseignez ${fieldLabels[f] || f}...`}
+                      />
+                    ) : isBool ? (
+                      <label className="flex items-center gap-2 cursor-pointer mt-1">
+                        <input
+                          type="checkbox"
+                          checked={Boolean(modalItem[f])}
+                          onChange={(e) => setModalItem({ ...modalItem, [f]: e.target.checked ? 1 : 0 })}
+                          className="w-4 h-4 rounded border-slate-700 bg-slate-900 text-sky-500 focus:ring-sky-500"
+                        />
+                        <span className="text-xs text-white">
+                          {modalItem[f] ? 'Oui / Actif' : 'Non / Inactif'}
+                        </span>
+                      </label>
+                    ) : (
+                      <input
+                        type={f === 'sort_order' || f === 'level' ? 'number' : 'text'}
+                        className="admin-input"
+                        value={modalItem[f] ?? ''}
+                        onChange={(e) => setModalItem({ ...modalItem, [f]: e.target.value })}
+                        placeholder={`Renseignez ${fieldLabels[f] || f}...`}
+                      />
+                    )}
+                  </div>
+                );
+              })}
             </form>
+            <div className="flex justify-end gap-2 p-5 pt-4 border-t border-white/10 shrink-0 bg-[#07101d]/60 rounded-b-2xl">
+              <button
+                type="button"
+                onClick={() => setModalItem(null)}
+                className="admin-btn admin-btn-secondary"
+              >
+                Annuler
+              </button>
+              <button
+                type="submit"
+                form="generic-modal-form"
+                className="admin-btn admin-btn-primary"
+              >
+                <IconSave size={14} />
+                <span>Enregistrer</span>
+              </button>
+            </div>
           </div>
         </div>
       )}
