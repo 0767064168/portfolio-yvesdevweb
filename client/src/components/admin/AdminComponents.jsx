@@ -832,9 +832,6 @@ function AdminSettingsView({ data, onUpdateData, onShowToast }) {
               onChange={(e) => setPwdForm({ ...pwdForm, current: e.target.value })}
               placeholder="••••••••••••"
             />
-            <p className="text-[10px] text-slate-400 mt-1">
-              <em>Initial : <code>YvesDevWeb@2026!</code> si jamais modifié</em>
-            </p>
           </div>
           <div className="admin-form-group">
             <label>Nouveau mot de passe (min. 8 car.)</label>
@@ -906,7 +903,7 @@ function AdminSecurityView({ admin, onShowToast }) {
       if (currentHash !== storedHash) {
         setPwdFeedback({
           error: true,
-          text: 'Mot de passe actuel incorrect. (Astuce : si vous ne l’avez jamais modifié, le mot de passe initial par défaut est "YvesDevWeb@2026!")'
+          text: 'Mot de passe actuel incorrect.'
         });
         setPwdSaving(false);
         return;
@@ -1025,9 +1022,6 @@ function AdminSecurityView({ admin, onShowToast }) {
                 {showCurrent ? <IconEyeOff size={16} /> : <IconEye size={16} />}
               </button>
             </div>
-            <p className="text-[11px] text-slate-400 mt-1">
-              💡 <em>Si vous ne l’avez jamais modifié, le mot de passe initial par défaut est <code>YvesDevWeb@2026!</code></em>
-            </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-1">
