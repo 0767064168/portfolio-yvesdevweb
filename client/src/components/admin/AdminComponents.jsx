@@ -105,7 +105,7 @@ export function AdminLogin({ csrfToken, onLogin }) {
 
     // Standalone fallback authentication with SHA-256 salted hash verification
     const emailNorm = form.email.trim().toLowerCase();
-    const allowedEmails = ['admin@yvesyao.dev', 'contact@yvesyao.dev', 'admin'];
+    const allowedEmails = ['admin@yvesyao.dev', 'contact@yvesyao.dev', 'yaoy6926@gmail.com', 'admin'];
     const DEFAULT_HASH = 'ad46e1d74d71072a759879ab00de720c55315acb2bb6e576937357ac04dcfc86';
     const storedHash = localStorage.getItem('portfolio-admin-pwd-hash') || DEFAULT_HASH;
 
@@ -115,7 +115,7 @@ export function AdminLogin({ csrfToken, onLogin }) {
         const mockAdmin = {
           id: 1,
           name: 'Yves Yao',
-          email: 'admin@yvesyao.dev',
+          email: emailNorm.includes('@') ? emailNorm : 'admin@yvesyao.dev',
           role: 'admin'
         };
         localStorage.setItem('portfolio-admin-session', JSON.stringify(mockAdmin));
@@ -821,7 +821,9 @@ function AdminSettingsView({ data, onUpdateData, onShowToast }) {
       <form onSubmit={changePassword} className="space-y-4">
         <div className="admin-form-grid-3">
           <div className="admin-form-group">
-            <label>Mot de passe actuel</label>
+            <label className="flex items-center justify-between">
+              <span>Mot de passe actuel</span>
+            </label>
             <input
               type="password"
               required
@@ -830,6 +832,9 @@ function AdminSettingsView({ data, onUpdateData, onShowToast }) {
               onChange={(e) => setPwdForm({ ...pwdForm, current: e.target.value })}
               placeholder="••••••••••••"
             />
+            <p className="text-[10px] text-slate-400 mt-1">
+              <em>Initial : <code>YvesDevWeb@2026!</code> si jamais modifié</em>
+            </p>
           </div>
           <div className="admin-form-group">
             <label>Nouveau mot de passe (min. 8 car.)</label>
@@ -865,6 +870,264 @@ function AdminSettingsView({ data, onUpdateData, onShowToast }) {
       </form>
     </div>
     </>
+  );
+}
+
+// --------------------------------------------------------------------------
+// 3b. ADMIN SECURITY & PASSWORD MANAGER VIEW
+// --------------------------------------------------------------------------
+function AdminSecurityView({ admin, onShowToast }) {
+  const [pwdForm, setPwdForm] = useState({ current: '', next: '', confirm: '' });
+  const [showCurrent, setShowCurrent] = useState(false);
+  const [showNext, setShowNext] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [pwdSaving, setPwdSaving] = useState(false);
+  const [pwdFeedback, setPwdFeedback] = useState(null);
+
+  const changePassword = async (e) => {
+    e.preventDefault();
+    setPwdFeedback(null);
+
+    if (!pwdForm.next || pwdForm.next.length < 8) {
+      setPwdFeedback({ error: true, text: 'Le nouveau mot de passe doit comporter au moins 8 caractères.' });
+      return;
+    }
+    if (pwdForm.next !== pwdForm.confirm) {
+      setPwdFeedback({ error: true, text: 'Les deux nouveaux mots de passe ne correspondent pas.' });
+      return;
+    }
+
+    setPwdSaving(true);
+    const DEFAULT_HASH = 'ad46e1d74d71072a759879ab00de720c55315acb2bb6e576937357ac04dcfc86';
+    const storedHash = localStorage.getItem('portfolio-admin-pwd-hash') || DEFAULT_HASH;
+
+    try {
+      const currentHash = await hashAdminPassword(pwdForm.current);
+      if (currentHash !== storedHash) {
+        setPwdFeedback({
+          error: true,
+          text: 'Mot de passe actuel incorrect. (Astuce : si vous ne l’avez jamais modifié, le mot de passe initial par défaut est "YvesDevWeb@2026!")'
+        });
+        setPwdSaving(false);
+        return;
+      }
+
+      const nextHash = await hashAdminPassword(pwdForm.next);
+      localStorage.setItem('portfolio-admin-pwd-hash', nextHash);
+
+      if (apiBase) {
+        try {
+          await api('/admin/resources/admins/1', {
+            method: 'PUT',
+            body: JSON.stringify({ password: pwdForm.next })
+          });
+        } catch (apiErr) {
+          console.warn('Backend password sync error:', apiErr);
+        }
+      }
+
+      setPwdForm({ current: '', next: '', confirm: '' });
+      setPwdFeedback({
+        error: false,
+        text: 'Votre mot de passe administrateur a été modifié avec succès et chiffré en SHA-256 ! Vous pouvez désormais l’utiliser pour vos prochaines connexions.'
+      });
+      onShowToast('Mot de passe administrateur mis à jour avec succès !');
+    } catch (err) {
+      setPwdFeedback({ error: true, text: 'Erreur lors du chiffrement du mot de passe.' });
+    }
+    setPwdSaving(false);
+  };
+
+  const isMatching = pwdForm.next && pwdForm.confirm && pwdForm.next === pwdForm.confirm;
+  const isMismatch = pwdForm.next && pwdForm.confirm && pwdForm.next !== pwdForm.confirm;
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between pb-4 border-b border-white/10">
+        <div>
+          <h2 className="text-lg font-bold text-white flex items-center gap-2">
+            <IconKey size={20} className="text-amber-400" />
+            <span>Sécurité & Mot de Passe Administrateur</span>
+          </h2>
+          <p className="text-xs text-slate-400">
+            Gérez vos identifiants d’accès et modifiez votre mot de passe administrateur à tout moment.
+          </p>
+        </div>
+        <span className="text-[11px] font-mono px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 flex items-center gap-1.5">
+          <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+          <span>Chiffrement SHA-256 actif</span>
+        </span>
+      </div>
+
+      {/* Info session & compte */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="p-4 rounded-xl bg-slate-900/60 border border-white/10">
+          <div className="text-[11px] text-slate-400 mb-1">Compte connecté</div>
+          <div className="text-sm font-bold text-white">{admin?.name || 'Yves Yao'}</div>
+          <div className="text-xs text-slate-400 font-mono mt-0.5">{admin?.email || 'admin@yvesyao.dev'}</div>
+        </div>
+        <div className="p-4 rounded-xl bg-slate-900/60 border border-white/10">
+          <div className="text-[11px] text-slate-400 mb-1">Habilitation</div>
+          <div className="text-sm font-bold text-sky-400">Administrateur Principal</div>
+          <div className="text-xs text-slate-400 mt-0.5">Accès total au panneau de contrôle</div>
+        </div>
+        <div className="p-4 rounded-xl bg-slate-900/60 border border-white/10">
+          <div className="text-[11px] text-slate-400 mb-1">Protection cryptographique</div>
+          <div className="text-sm font-bold text-emerald-400">Salage & Hachage SHA-256</div>
+          <div className="text-xs text-slate-400 mt-0.5">Stockage sécurisé sans clair</div>
+        </div>
+      </div>
+
+      {/* Formulaire de modification */}
+      <div className="admin-card border border-sky-400/20">
+        <div className="admin-card-head flex items-center justify-between mb-4">
+          <h2>
+            <IconKey size={18} className="text-amber-400" />
+            <span>Modifier votre mot de passe</span>
+          </h2>
+        </div>
+
+        {pwdFeedback && (
+          <div
+            className={`p-4 rounded-xl text-xs mb-5 flex items-start gap-2.5 ${
+              pwdFeedback.error
+                ? 'bg-rose-950/60 border border-rose-500/40 text-rose-200'
+                : 'bg-emerald-950/60 border border-emerald-500/40 text-emerald-200'
+            }`}
+          >
+            <span className="text-base">{pwdFeedback.error ? '⚠️' : '✅'}</span>
+            <div className="leading-relaxed">{pwdFeedback.text}</div>
+          </div>
+        )}
+
+        <form onSubmit={changePassword} className="space-y-4">
+          {/* Mot de passe actuel */}
+          <div className="admin-form-group">
+            <label className="flex items-center justify-between">
+              <span>Mot de passe actuel</span>
+              <span className="text-[11px] text-slate-500 font-normal">Requis pour authentifier le changement</span>
+            </label>
+            <div className="relative">
+              <input
+                type={showCurrent ? 'text' : 'password'}
+                required
+                className="admin-input pr-10"
+                value={pwdForm.current}
+                onChange={(e) => setPwdForm({ ...pwdForm, current: e.target.value })}
+                placeholder="••••••••••••"
+              />
+              <button
+                type="button"
+                onClick={() => setShowCurrent(!showCurrent)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white"
+                title={showCurrent ? 'Masquer' : 'Afficher'}
+              >
+                {showCurrent ? <IconEyeOff size={16} /> : <IconEye size={16} />}
+              </button>
+            </div>
+            <p className="text-[11px] text-slate-400 mt-1">
+              💡 <em>Si vous ne l’avez jamais modifié, le mot de passe initial par défaut est <code>YvesDevWeb@2026!</code></em>
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-1">
+            {/* Nouveau mot de passe */}
+            <div className="admin-form-group">
+              <label>Nouveau mot de passe</label>
+              <div className="relative">
+                <input
+                  type={showNext ? 'text' : 'password'}
+                  required
+                  minLength={8}
+                  className="admin-input pr-10"
+                  value={pwdForm.next}
+                  onChange={(e) => setPwdForm({ ...pwdForm, next: e.target.value })}
+                  placeholder="Min. 8 caractères"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowNext(!showNext)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white"
+                  title={showNext ? 'Masquer' : 'Afficher'}
+                >
+                  {showNext ? <IconEyeOff size={16} /> : <IconEye size={16} />}
+                </button>
+              </div>
+              <div className="flex items-center gap-2 mt-1.5">
+                <div className="flex-1 h-1 rounded-full bg-slate-800 overflow-hidden">
+                  <div
+                    className={`h-full transition-all duration-300 ${
+                      !pwdForm.next
+                        ? 'w-0'
+                        : pwdForm.next.length < 8
+                        ? 'w-1/3 bg-rose-500'
+                        : pwdForm.next.length < 12
+                        ? 'w-2/3 bg-amber-500'
+                        : 'w-full bg-emerald-500'
+                    }`}
+                  />
+                </div>
+                <span className="text-[10px] text-slate-400">
+                  {!pwdForm.next
+                    ? '8 car. min.'
+                    : pwdForm.next.length < 8
+                    ? 'Trop court'
+                    : pwdForm.next.length < 12
+                    ? 'Moyen'
+                    : 'Robuste'}
+                </span>
+              </div>
+            </div>
+
+            {/* Confirmer le nouveau mot de passe */}
+            <div className="admin-form-group">
+              <label>Confirmer le nouveau mot de passe</label>
+              <div className="relative">
+                <input
+                  type={showConfirm ? 'text' : 'password'}
+                  required
+                  minLength={8}
+                  className={`admin-input pr-10 ${
+                    isMismatch ? 'border-rose-500/60 focus:border-rose-500' : isMatching ? 'border-emerald-500/60' : ''
+                  }`}
+                  value={pwdForm.confirm}
+                  onChange={(e) => setPwdForm({ ...pwdForm, confirm: e.target.value })}
+                  placeholder="Répétez le nouveau mot de passe"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirm(!showConfirm)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white"
+                  title={showConfirm ? 'Masquer' : 'Afficher'}
+                >
+                  {showConfirm ? <IconEyeOff size={16} /> : <IconEye size={16} />}
+                </button>
+              </div>
+              {isMismatch && (
+                <p className="text-[11px] text-rose-400 mt-1">Les mots de passe ne correspondent pas.</p>
+              )}
+              {isMatching && (
+                <p className="text-[11px] text-emerald-400 mt-1">✓ Les mots de passe correspondent.</p>
+              )}
+            </div>
+          </div>
+
+          <div className="flex items-center justify-between pt-4 border-t border-white/10 mt-4">
+            <span className="text-xs text-slate-400">
+              Le mot de passe sera immédiatement actif pour vos prochaines connexions.
+            </span>
+            <button
+              type="submit"
+              disabled={pwdSaving || Boolean(isMismatch)}
+              className="admin-btn admin-btn-primary flex items-center gap-2"
+            >
+              <IconKey size={15} />
+              <span>{pwdSaving ? 'Chiffrement en cours…' : 'Enregistrer le nouveau mot de passe'}</span>
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
   );
 }
 
@@ -1890,6 +2153,7 @@ function AdminOverviewView({ data, admin, onNavigate, onShowToast }) {
             {[
               { label: 'Gérer les Projets & Études de cas', sec: 'projects', IconComp: IconProjects },
               { label: 'Mettre à jour le Profil & Réseaux Sociaux', sec: 'settings', IconComp: IconProfile },
+              { label: 'Sécurité & Mot de passe administrateur', sec: 'security', IconComp: IconKey },
               { label: 'Consulter la Boîte de Réception', sec: 'messages', IconComp: IconMessages },
               { label: 'Compétences & Stack technique', sec: 'skills', IconComp: IconSkills },
               { label: 'Sauvegarder & Exporter les données (JSON)', sec: 'backup', IconComp: IconBackup }
@@ -1965,7 +2229,8 @@ export function AdminPanel({ admin, csrfToken, onLogout, initialSection, data: p
 
   const navLinks = [
     { id: 'overview', label: "Vue d'ensemble", IconComp: IconOverview },
-    { id: 'settings', label: 'Profil & Réseaux', IconComp: IconProfile },
+    { id: 'settings', label: 'Profil & Coordonnées', IconComp: IconProfile },
+    { id: 'security', label: 'Sécurité & Mot de passe', IconComp: IconKey },
     { id: 'projects', label: 'Projets & Études', IconComp: IconProjects },
     { id: 'skills', label: 'Compétences', IconComp: IconSkills },
     { id: 'services', label: 'Services', IconComp: IconServices },
@@ -2086,6 +2351,13 @@ export function AdminPanel({ admin, csrfToken, onLogout, initialSection, data: p
             <AdminSettingsView
               data={data}
               onUpdateData={handleUpdate}
+              onShowToast={showToast}
+            />
+          )}
+
+          {section === 'security' && (
+            <AdminSecurityView
+              admin={admin}
               onShowToast={showToast}
             />
           )}
