@@ -35,7 +35,7 @@ const mockData = {
     photo: 'assets/portrait.jpg',
     logo: 'assets/logo-yy.png',
     linkedin: 'https://linkedin.com/in/yves-yao',
-    github: 'https://github.com/0767064168',
+    github: '',
     facebook: 'https://facebook.com/yvesyao',
     instagram: 'https://instagram.com/yvesyao',
     tiktok: 'https://tiktok.com/@yvesyao',
@@ -64,8 +64,8 @@ const mockData = {
       technologies: 'PHP 8, MySQL, JavaScript ES6+, Tailwind CSS, Chart.js, SheetJS',
       image: 'assets/projects/demo-pointage-rh.svg',
       cover_image: 'assets/projects/demo-pointage-rh.svg',
-      project_url: 'https://github.com/0767064168',
-      github_url: 'https://github.com/0767064168/portfolio-yvesdevweb',
+      project_url: '',
+      github_url: '',
       featured: 1,
       sort_order: 1
     },
@@ -91,8 +91,8 @@ const mockData = {
       technologies: 'PHP, MySQL, REST API, PWA, QuaggaJS, IndexedDB',
       image: 'assets/projects/demo-expeditions.svg',
       cover_image: 'assets/projects/demo-expeditions.svg',
-      project_url: 'https://github.com/0767064168',
-      github_url: 'https://github.com/0767064168/portfolio-yvesdevweb',
+      project_url: '',
+      github_url: '',
       featured: 1,
       sort_order: 2
     },
@@ -118,8 +118,8 @@ const mockData = {
       technologies: 'PHP, PostgreSQL, JavaScript, Chart.js, HTML5 Canvas',
       image: 'assets/projects/demo-quincaillerie.svg',
       cover_image: 'assets/projects/demo-quincaillerie.svg',
-      project_url: 'https://github.com/0767064168',
-      github_url: 'https://github.com/0767064168/portfolio-yvesdevweb',
+      project_url: '',
+      github_url: '',
       featured: 0,
       sort_order: 3
     }

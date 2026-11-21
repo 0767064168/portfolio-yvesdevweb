@@ -77,10 +77,10 @@ export function Header({ settings = {}, locale, setLocale, translations = {} }) 
             </a>
           ))}
 
-          {/* Social Icons : LinkedIn, GitHub, Facebook, Instagram, TikTok */}
+          {/* Social Icons : LinkedIn, Facebook, Instagram, TikTok */}
           <div className="flex items-center gap-1.5 px-1 py-1">
             <SocialIcon name="linkedin" href={settings.linkedin || 'https://linkedin.com/in/yves-yao'} />
-            <SocialIcon name="github" href={settings.github || 'https://github.com/0767064168'} />
+            {settings.github && <SocialIcon name="github" href={settings.github} />}
             <SocialIcon name="facebook" href={settings.facebook || 'https://facebook.com/yvesyao'} />
             <SocialIcon name="instagram" href={settings.instagram || 'https://instagram.com/yvesyao'} />
             <SocialIcon name="tiktok" href={settings.tiktok || 'https://tiktok.com/@yvesyao'} />

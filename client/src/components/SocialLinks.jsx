@@ -133,11 +133,11 @@ export function SocialIcon({ name, href, size = 'w-5 h-5', className = '', showL
 export function SocialGroup({ settings = {}, showLabels = false, className = '' }) {
   const items = [
     { name: 'linkedin', href: settings.linkedin || 'https://linkedin.com/in/yves-yao' },
-    { name: 'github', href: settings.github || 'https://github.com/0767064168' },
+    settings.github ? { name: 'github', href: settings.github } : null,
     { name: 'tiktok', href: settings.tiktok || 'https://tiktok.com/@yvesyao' },
     { name: 'instagram', href: settings.instagram || 'https://instagram.com/yvesyao' },
     { name: 'facebook', href: settings.facebook || 'https://facebook.com/yvesyao' }
-  ];
+  ].filter(Boolean);
 
   if (settings.whatsapp) {
     const cleanPhone = (settings.whatsapp || '').replace(/[^0-9]/g, '');
