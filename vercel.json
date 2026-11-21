@@ -3,6 +3,14 @@
   "outputDirectory": "dist",
   "rewrites": [
     {
+      "source": "/api/cv",
+      "destination": "/assets/cv/yves-yao-cv.pdf"
+    },
+    {
+      "source": "/cv",
+      "destination": "/assets/cv/yves-yao-cv.pdf"
+    },
+    {
       "source": "/api/(.*)",
       "destination": "/api"
     },

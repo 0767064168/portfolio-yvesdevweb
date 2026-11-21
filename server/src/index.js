@@ -425,7 +425,13 @@ app.post('/api/admin/setup', csrf, asyncRoute(async (req, res) => {
   res.status(201).json({ id });
 }));
 
-app.get('/api/cv', (req, res) => res.sendFile(path.join(root, 'assets', 'cv', 'yves-yao-cv.pdf')));
+app.get(['/api/cv', '/cv'], (req, res) => {
+  const filePath = path.join(root, 'assets', 'cv', 'yves-yao-cv.pdf');
+  if (fs.existsSync(filePath)) {
+    return res.download(filePath, 'CV-Yves-Yao.pdf');
+  }
+  res.redirect('/assets/cv/yves-yao-cv.pdf');
+});
 
 app.get('/robots.txt', (req, res) => {
   res.type('text/plain').send(`User-agent: *\nAllow: /\nDisallow: /admin/\nDisallow: /api/\nSitemap: ${(process.env.APP_URL || `http://localhost:${port}`).replace(/\/$/, '')}/sitemap.xml\n`);
